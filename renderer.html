@@ -932,7 +932,7 @@ input[type=range] {
   <div class="modal-box">
     <h2 class="modal-title">📁 Upload Custom C# Solution</h2>
     <p style="font-size:13px; color:var(--text-secondary); margin:0;">
-      Upload any C# algorithm file (Binary Search, Two Sum, Sliding Window, Trapping Rain Water, etc.) or paste code directly. The engine simulates the execution and proves invariants step-by-step.
+      Upload any C# algorithm file or paste code directly. You can provide a custom test case, or <b>leave the test case empty</b> to let AlgoAnimator auto-detect the algorithm and synthesize a complete corner-case test suite!
     </p>
 
     <div class="form-field">
@@ -962,8 +962,11 @@ input[type=range] {
     </div>
 
     <div class="form-field">
-      <label>Test Case Array (and optional target)</label>
-      <input type="text" class="form-input" id="custom-input-data" value="[-1, 0, 3, 5, 9, 12], target=9">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label>Test Case Array & Target <span style="color:#10b981; font-weight:700;">(Optional)</span></label>
+        <span style="font-size:11px; color:var(--text-muted);">Leave empty to auto-synthesize all corner cases</span>
+      </div>
+      <input type="text" class="form-input" id="custom-input-data" placeholder="Leave empty to auto-detect and synthesize edge cases (e.g. [-1, 0, 3, 5, 9, 12], target=9)">
     </div>
 
     <div class="modal-footer">

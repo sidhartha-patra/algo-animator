@@ -1,4 +1,4 @@
-from typing import List, Optional, Literal, Union
+from typing import List, Optional, Literal, Union, Dict, Any
 from pydantic import BaseModel, Field
 
 class Character(BaseModel):
@@ -55,5 +55,6 @@ class AnimationSpec(BaseModel):
     confidence: float = Field(default=1.0, ge=0, le=1)
     source_code: Optional[str] = None
     source_language: Optional[str] = "csharp"
+    synthesized_corner_cases: List[Dict[str, Any]] = Field(default_factory=list)
     characters: List[Character] = Field(default_factory=list)
     scenes: List[Scene]

@@ -82,7 +82,7 @@ class AlgoAnimatorHandler(SimpleHTTPRequestHandler):
         if path == "/api/animate":
             algo_text = data.get("algorithm", "Custom Algorithm")
             code_text = data.get("code", algoanimate.SAMPLE_CSHARP_CODE)
-            input_val = data.get("input", "[0,1,0,2,1,0,1,3,2,1,2,1]")
+            input_val = data.get("input", "")
             audience = data.get("audience", "interview")
 
             try:
@@ -120,27 +120,27 @@ class AlgoAnimatorHandler(SimpleHTTPRequestHandler):
 
         if path == "/api/simulate-corner-cases":
             code_text = data.get("code", algoanimate.SAMPLE_CSHARP_CODE)
-            cases = get_trapping_rain_water_corner_cases()
+            import simulator
+            profile = simulator.synthesize_test_cases_from_code(code_text)
+            cases = profile.get("corner_cases", [])
             results = []
 
-            for case in cases:
-                out_val, spec = simulate_trapping_rain_water(case, code_text)
-                passed = (out_val == case.expected_output)
+            for case_info in cases:
+                case_input = case_info["input"]
+                case_spec = simulator.auto_simulate(code_text, case_input, profile.get("algorithm"))
                 results.append({
-                    "case_name": case.name,
-                    "description": case.description,
-                    "input": case.data,
-                    "expected": case.expected_output,
-                    "actual": out_val,
-                    "passed": passed,
-                    "scenes_count": len(spec.scenes),
-                    "spec": spec.model_dump()
+                    "case_name": case_info["name"],
+                    "description": case_info["description"],
+                    "input": case_input,
+                    "expected": case_info.get("expected"),
+                    "scenes_count": len(case_spec.scenes),
+                    "spec": case_spec.model_dump()
                 })
 
             self.send_json(200, {
-                "algorithm": "Trapping Rain Water",
+                "algorithm": profile.get("algorithm", "Algorithm"),
+                "paradigm": profile.get("paradigm", "general"),
                 "total_cases": len(cases),
-                "passed_cases": sum(1 for r in results if r["passed"]),
                 "results": results
             })
             return

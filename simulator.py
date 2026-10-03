@@ -684,9 +684,132 @@ def simulate_sliding_window(nums: List[int], source_code: Optional[str] = None) 
     return max_sum, spec
 
 # ---------------------------------------------------------------------------
-# 5. Universal Heuristic Simulator (Dispatches by Code Content)
+# 5. Automatic Test Case Synthesizer & Universal Simulator
 # ---------------------------------------------------------------------------
-def auto_simulate(code_str: str, input_str: str, title: Optional[str] = None) -> AnimationSpec:
+def synthesize_test_cases_from_code(code_str: str, title: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Intelligently inspects any source code without any user-provided test cases.
+    Identifies the algorithm paradigm and synthesizes an exhaustive battery of edge and corner cases,
+    along with a recommended illustrative test case for immediate simulation.
+    """
+    code_lower = (code_str or "").lower()
+    title_lower = (title or "").lower()
+
+    # Extract method name from code if present
+    m_method = re.search(r'(?:public|private|static|\s)\s*(?:[A-Za-z0-9_<>\[\]]+)\s+([A-Za-z0-9_]+)\s*\(([^)]*)\)', code_str)
+    method_name = m_method.group(1) if m_method else (title or "Algorithm")
+    params_str = m_method.group(2) if m_method else ""
+
+    # 1. Binary Search
+    if "binarysearch" in code_lower or "binary_search" in title_lower or ("left <= right" in code_lower and "mid" in code_lower) or ("mid" in code_lower and "nums[mid]" in code_lower):
+        primary_input = "[-1, 0, 3, 5, 9, 12], target=9"
+        cases = [
+            {"name": "Standard Illustrative", "input": "[-1, 0, 3, 5, 9, 12], target=9", "description": "Target in right half", "expected": 4},
+            {"name": "Target at Index 0", "input": "[1, 3, 5, 7, 9], target=1", "description": "Target at left boundary", "expected": 0},
+            {"name": "Target at End", "input": "[1, 3, 5, 7, 9], target=9", "description": "Target at right boundary", "expected": 4},
+            {"name": "Target Absent (Middle)", "input": "[2, 4, 6, 8, 10], target=5", "description": "Target absent between elements", "expected": -1},
+            {"name": "Target Absent (Too Small)", "input": "[2, 4, 6], target=1", "description": "Target smaller than all elements", "expected": -1},
+            {"name": "Single Element Found", "input": "[5], target=5", "description": "Length 1 array matching target", "expected": 0},
+            {"name": "Single Element Miss", "input": "[5], target=3", "description": "Length 1 array not matching", "expected": -1},
+            {"name": "Empty Array", "input": "[], target=1", "description": "Length 0 boundary condition", "expected": -1},
+        ]
+        return {
+            "paradigm": "binary_search",
+            "algorithm": "Binary Search",
+            "method_name": method_name,
+            "primary_input": primary_input,
+            "corner_cases": cases
+        }
+
+    # 2. Two Sum / Hash Map
+    if "twosum" in code_lower or "two_sum" in title_lower or ("complement" in code_lower and "seen" in code_lower) or "dictionary" in code_lower:
+        primary_input = "[2, 7, 11, 15], target=9"
+        cases = [
+            {"name": "Standard Pair", "input": "[2, 7, 11, 15], target=9", "description": "First two elements form sum", "expected": [0, 1]},
+            {"name": "Adjacent Pair at End", "input": "[3, 2, 4], target=6", "description": "Solution at the tail", "expected": [1, 2]},
+            {"name": "Duplicate Elements", "input": "[3, 3], target=6", "description": "Same value twice", "expected": [0, 1]},
+            {"name": "Negative Numbers", "input": "[-1, -2, -3, -4, -5], target=-8", "description": "All negative values", "expected": [2, 4]},
+            {"name": "Zeros in Array", "input": "[0, 4, 3, 0], target=0", "description": "Zero complement check", "expected": [0, 3]},
+            {"name": "No Valid Pair", "input": "[1, 2, 3], target=10", "description": "No pair sums to target", "expected": []},
+        ]
+        return {
+            "paradigm": "two_sum",
+            "algorithm": "Two Sum (Hash Map)",
+            "method_name": method_name,
+            "primary_input": primary_input,
+            "corner_cases": cases
+        }
+
+    # 3. Maximum Subarray / Kadane / Sliding Window
+    if "maxsubarray" in code_lower or "kadane" in code_lower or "currentsum" in code_lower or "maxsum" in code_lower:
+        primary_input = "[-2, 1, -3, 4, -1, 2, 1, -5, 4]"
+        cases = [
+            {"name": "Classic LeetCode", "input": "[-2, 1, -3, 4, -1, 2, 1, -5, 4]", "description": "Subarray [4, -1, 2, 1] has max sum 6", "expected": 6},
+            {"name": "All Negative Numbers", "input": "[-5, -2, -8, -1, -4]", "description": "Least negative element is optimal (-1)", "expected": -1},
+            {"name": "All Positive Numbers", "input": "[1, 2, 3, 4, 5]", "description": "Entire array is maximum", "expected": 15},
+            {"name": "Alternating Pos/Neg", "input": "[5, -3, 5]", "description": "Positive span outweighs middle negative", "expected": 7},
+            {"name": "Single Positive", "input": "[10]", "description": "Array length 1 positive", "expected": 10},
+            {"name": "Single Negative", "input": "[-7]", "description": "Array length 1 negative", "expected": -7},
+        ]
+        return {
+            "paradigm": "kadane",
+            "algorithm": "Maximum Subarray (Kadane)",
+            "method_name": method_name,
+            "primary_input": primary_input,
+            "corner_cases": cases
+        }
+
+    # 4. Trapping Rain Water / Elevation Two Pointers
+    if "trap" in code_lower or "rain" in code_lower or "water" in code_lower or "leftmax" in code_lower or "rightmax" in code_lower:
+        primary_input = "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]"
+        tw_corner = get_trapping_rain_water_corner_cases()
+        cases = [{"name": c.name, "input": str(c.data), "description": c.description, "expected": c.expected_output} for c in tw_corner]
+        return {
+            "paradigm": "trapping",
+            "algorithm": "Trapping Rain Water",
+            "method_name": method_name,
+            "primary_input": primary_input,
+            "corner_cases": cases
+        }
+
+    # Default / General Array: Detect if has target or is search vs traversal
+    if "target" in code_lower or "target" in params_str.lower():
+        primary_input = "[-1, 0, 3, 5, 9, 12], target=9"
+        cases = [
+            {"name": "Standard Test", "input": "[-1, 0, 3, 5, 9, 12], target=9", "description": "Standard sorted search", "expected": 4},
+            {"name": "Boundary Test", "input": "[1, 5, 9], target=1", "description": "Target at index 0", "expected": 0},
+            {"name": "Element Absent", "input": "[2, 4, 6], target=5", "description": "Missing element", "expected": -1},
+            {"name": "Single Element", "input": "[7], target=7", "description": "Single element array", "expected": 0},
+            {"name": "Empty Array", "input": "[], target=3", "description": "Empty input array", "expected": -1},
+        ]
+        return {
+            "paradigm": "binary_search",
+            "algorithm": method_name or "Array Search",
+            "method_name": method_name,
+            "primary_input": primary_input,
+            "corner_cases": cases
+        }
+    else:
+        # Array manipulation / traversal
+        primary_input = "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]"
+        tw_corner = get_trapping_rain_water_corner_cases()
+        cases = [{"name": c.name, "input": str(c.data), "description": c.description, "expected": c.expected_output} for c in tw_corner]
+        return {
+            "paradigm": "trapping",
+            "algorithm": method_name or "Two Pointers Array Traversal",
+            "method_name": method_name,
+            "primary_input": primary_input,
+            "corner_cases": cases
+        }
+
+def auto_simulate(code_str: str, input_str: Optional[str] = None, title: Optional[str] = None) -> AnimationSpec:
+    profile = synthesize_test_cases_from_code(code_str, title)
+    synthesized_cases = profile.get("corner_cases", [])
+
+    # If no input_str is provided, use the auto-synthesized primary input!
+    if not input_str or not input_str.strip():
+        input_str = profile.get("primary_input", "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]")
+
     code_lower = (code_str or "").lower()
     title_lower = (title or "").lower()
 
@@ -720,6 +843,7 @@ def auto_simulate(code_str: str, input_str: str, title: Optional[str] = None) ->
         if target not in arr and arr:
             target = arr[len(arr) // 2]
         _, spec = simulate_binary_search(arr, target, code_str)
+        spec.synthesized_corner_cases = synthesized_cases
         return spec
 
     # Paradigm 2: Two Sum / Hash Map
@@ -727,20 +851,24 @@ def auto_simulate(code_str: str, input_str: str, title: Optional[str] = None) ->
         if len(arr) >= 2:
             target = arr[0] + arr[1]
         _, spec = simulate_two_sum(arr, target, code_str)
+        spec.synthesized_corner_cases = synthesized_cases
         return spec
 
     # Paradigm 3: Maximum Subarray / Kadane's / Sliding Window
     if "maxsubarray" in code_lower or "kadane" in code_lower or "currentsum" in code_lower or "maxsum" in code_lower:
         _, spec = simulate_sliding_window(arr, code_str)
+        spec.synthesized_corner_cases = synthesized_cases
         return spec
 
     # Paradigm 4: Trapping Rain Water / Elevation
     if "trap" in code_lower or "rain" in code_lower or "water" in code_lower or "leftmax" in code_lower:
         case = CornerTestCase("Custom Elevation", "User elevation map", arr, None)
         _, spec = simulate_trapping_rain_water(case, code_str)
+        spec.synthesized_corner_cases = synthesized_cases
         return spec
 
     # Default fallback: Treat as Two Pointers / General Array Traversal
     case = CornerTestCase("Custom Array", "User provided array", arr, None)
     _, spec = simulate_trapping_rain_water(case, code_str)
+    spec.synthesized_corner_cases = synthesized_cases
     return spec

@@ -1,16 +1,16 @@
-# Trapping Rain Water — Two Pointers
+# Trapping Rain Water — Custom Elevation — Two Pointers
 
 ## 🎯 Problem
-Given n non-negative integers representing an elevation map where width of each bar is 1, compute how much water it can trap after raining.
+Elevation map: [0,1,0,2,1,0,1,3,2,1,2,1]
 
 ## 💡 Core Intuition
-Water trapped at any bar i is min(leftMax, rightMax) - height[i]. By keeping two pointers and moving whichever side has the smaller max, we know with 100% certainty that the smaller side is the limiting factor.
+Two pointer invariant bounds the water level using the strictly shorter side.
 
 ## 🎨 Visual Metaphor
-Two climbers walking inward from opposite mountain ridges, measuring bounding walls and filling trapped pools.
+Mountain ridges and basin filling.
 
 ## 🛡️ Mathematical Invariant ("Why is this safe?")
-At any step, if leftMax < rightMax, the water level at the left pointer is strictly bounded by leftMax, regardless of unseen heights in between.
+At every step, min(leftMax, rightMax) guarantees the water level for the shorter side.
 
 ## ⏱️ Complexity
 - **Time Complexity:** O(N)
@@ -19,6 +19,6 @@ At any step, if leftMax < rightMax, the water level at the left pointer is stric
 ## 🧑 Characters
 - **Algo** (Guide & Teacher)
 - **Bug** (Skeptical Interviewer)
-- **Data** (Array Wall)
+- **Data** (Elevation Map)
 
-## 🎬 Generated Scenes: 15 total scenes.
+## 🎬 Generated Scenes: 14 total scenes.

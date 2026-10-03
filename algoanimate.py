@@ -567,9 +567,9 @@ def main():
             if source_code and not spec.source_code:
                 spec.source_code = source_code
         except Exception as e:
-            print(f"Warning: Gemini API call failed or GEMINI_API_KEY not set: {e}")
-            print("Falling back to high-fidelity reference Trapping Rain Water sample...")
-            spec = get_trapping_rain_water_sample()
+            print(f"Notice: Gemini API unavailable ({e}). Using native multi-paradigm simulator & test case synthesizer...")
+            import simulator
+            spec = simulator.auto_simulate(source_code or algo_text, args.input, algo_text)
     else:
         p.print_help()
         return
