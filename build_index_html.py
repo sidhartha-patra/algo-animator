@@ -1,4 +1,6 @@
-<!doctype html>
+import os
+
+HTML_CONTENT = r'''<!doctype html>
 <html lang="en" class="dark">
 <head>
 <meta charset="utf-8">
@@ -1922,6 +1924,11 @@ async function runCustomCode() {
       spec = buildTrappingRainWaterSpec(nums, codeText);
     }
   }
+    spec = buildKadaneSpec(nums, codeText);
+  } else {
+    // If Trapping Rain Water or default
+    spec = buildBinarySearchSpec(nums, target, codeText);
+  }
 
   setSpec(spec);
 }
@@ -1938,3 +1945,9 @@ init();
 </script>
 </body>
 </html>
+'''
+
+with open("docs/index.html", "w", encoding="utf-8") as f:
+    f.write(HTML_CONTENT)
+
+print("docs/index.html generated successfully with elite design system and multi-paradigm simulation!")

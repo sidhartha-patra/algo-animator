@@ -1,0 +1,212 @@
+{
+  "title": "Binary Search — Target 5",
+  "algorithm": "Binary Search",
+  "problem": "Find index of target 5 in sorted array [5]",
+  "intuition": "Halve the search space by probing the midpoint of the sorted range.",
+  "visual_metaphor": "Detective eliminating half the rooms at each step.",
+  "invariant": "Target is guaranteed to be within [left..right] if it exists in the array.",
+  "time_complexity": "O(log N)",
+  "space_complexity": "O(1)",
+  "confidence": 1.0,
+  "source_code": "public int BinarySearch(int[] nums, int target)\n{\n    int left = 0, right = nums.Length - 1;\n    while (left <= right)\n    {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n        if (nums[mid] < target) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}",
+  "source_language": "csharp",
+  "characters": [
+    {
+      "id": "algo",
+      "name": "Algo",
+      "role": "Detective / Teacher",
+      "mood": "explaining"
+    },
+    {
+      "id": "bug",
+      "name": "Bug",
+      "role": "Skeptic",
+      "mood": "skeptical"
+    },
+    {
+      "id": "data",
+      "name": "Data",
+      "role": "Sorted Space",
+      "mood": "neutral"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "bs_1",
+      "type": "title",
+      "title": "Binary Search: Target 5",
+      "narration": "Searching for target = 5 in sorted array of 1 elements: [5].",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Locating target 5. Because the array is sorted, we eliminate half the candidate elements in each step!",
+          "mood": "confident"
+        },
+        {
+          "character_id": "bug",
+          "text": "Let's make sure our middle index calculation doesn't overflow or miss target.",
+          "mood": "thinking"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 1,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    },
+    {
+      "id": "bs_2",
+      "type": "decision",
+      "title": "Probe Midpoint: Index 0 (Value 5)",
+      "narration": "Search range [0..0]. Calculate mid = 0 + (0 - 0) / 2 = 0. nums[0] = 5.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Checking midpoint index 0 with value 5.",
+          "mood": "explaining"
+        },
+        {
+          "character_id": "data",
+          "text": "Target is 5. Comparing 5 vs 5.",
+          "mood": "neutral"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "5",
+          "highlight": true,
+          "index": 0,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "left",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "right",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "mid",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "nums[mid]",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 5,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": {
+        "decision": "nums[mid] = 5 vs target = 5",
+        "limiting_factor": "Monotonicity: all items before index 0 are <= 5, items after are >= 5",
+        "invariant_proof": "If target is present, it MUST lie in [0..0].",
+        "skeptical_question": "Why can we eliminate the entire half?",
+        "airtight_answer": "Array is strictly sorted. If nums[0] > 5, no element in the discarded half can ever equal 5."
+      }
+    },
+    {
+      "id": "bs_3_found",
+      "type": "result",
+      "title": "Target 5 Found at Index 0!",
+      "narration": "nums[0] == 5. Search succeeds in logarithmic time O(log N).",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Match confirmed! Target 5 is at index 0.",
+          "mood": "celebrating"
+        },
+        {
+          "character_id": "bug",
+          "text": "Took only a few probes to search the entire array.",
+          "mood": "celebrating"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "5",
+          "highlight": true,
+          "index": 0,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "found",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "result",
+          "value": "0",
+          "highlight": true,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 6,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    }
+  ]
+}

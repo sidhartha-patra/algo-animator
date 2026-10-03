@@ -1,0 +1,371 @@
+{
+  "title": "Binary Search — Target 5",
+  "algorithm": "Binary Search",
+  "problem": "Find index of target 5 in sorted array [2,4,6,8,10]",
+  "intuition": "Halve the search space by probing the midpoint of the sorted range.",
+  "visual_metaphor": "Detective eliminating half the rooms at each step.",
+  "invariant": "Target is guaranteed to be within [left..right] if it exists in the array.",
+  "time_complexity": "O(log N)",
+  "space_complexity": "O(1)",
+  "confidence": 1.0,
+  "source_code": "public int BinarySearch(int[] nums, int target)\n{\n    int left = 0, right = nums.Length - 1;\n    while (left <= right)\n    {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n        if (nums[mid] < target) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}",
+  "source_language": "csharp",
+  "characters": [
+    {
+      "id": "algo",
+      "name": "Algo",
+      "role": "Detective / Teacher",
+      "mood": "explaining"
+    },
+    {
+      "id": "bug",
+      "name": "Bug",
+      "role": "Skeptic",
+      "mood": "skeptical"
+    },
+    {
+      "id": "data",
+      "name": "Data",
+      "role": "Sorted Space",
+      "mood": "neutral"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "bs_1",
+      "type": "title",
+      "title": "Binary Search: Target 5",
+      "narration": "Searching for target = 5 in sorted array of 5 elements: [2,4,6,8,10].",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Locating target 5. Because the array is sorted, we eliminate half the candidate elements in each step!",
+          "mood": "confident"
+        },
+        {
+          "character_id": "bug",
+          "text": "Let's make sure our middle index calculation doesn't overflow or miss target.",
+          "mood": "thinking"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "2,4,6,8,10",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 1,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    },
+    {
+      "id": "bs_2",
+      "type": "decision",
+      "title": "Probe Midpoint: Index 2 (Value 6)",
+      "narration": "Search range [0..4]. Calculate mid = 0 + (4 - 0) / 2 = 2. nums[2] = 6.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Checking midpoint index 2 with value 6.",
+          "mood": "explaining"
+        },
+        {
+          "character_id": "data",
+          "text": "Target is 5. Comparing 6 vs 5.",
+          "mood": "neutral"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "2,4,6,8,10",
+          "highlight": true,
+          "index": 2,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "left",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "right",
+          "value": "4",
+          "highlight": false,
+          "index": null,
+          "target_index": 4,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "mid",
+          "value": "2",
+          "highlight": false,
+          "index": null,
+          "target_index": 2,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "nums[mid]",
+          "value": "6",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 5,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": {
+        "decision": "nums[mid] = 6 vs target = 5",
+        "limiting_factor": "Monotonicity: all items before index 2 are <= 6, items after are >= 6",
+        "invariant_proof": "If target is present, it MUST lie in [0..4].",
+        "skeptical_question": "Why can we eliminate the entire half?",
+        "airtight_answer": "Array is strictly sorted. If nums[2] > 5, no element in the discarded half can ever equal 5."
+      }
+    },
+    {
+      "id": "bs_3",
+      "type": "decision",
+      "title": "Probe Midpoint: Index 0 (Value 2)",
+      "narration": "Search range [0..1]. Calculate mid = 0 + (1 - 0) / 2 = 0. nums[0] = 2.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Checking midpoint index 0 with value 2.",
+          "mood": "explaining"
+        },
+        {
+          "character_id": "data",
+          "text": "Target is 5. Comparing 2 vs 5.",
+          "mood": "neutral"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "2,4,6,8,10",
+          "highlight": true,
+          "index": 0,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "left",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "right",
+          "value": "1",
+          "highlight": false,
+          "index": null,
+          "target_index": 1,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "mid",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "nums[mid]",
+          "value": "2",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 5,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": {
+        "decision": "nums[mid] = 2 vs target = 5",
+        "limiting_factor": "Monotonicity: all items before index 0 are <= 2, items after are >= 2",
+        "invariant_proof": "If target is present, it MUST lie in [0..1].",
+        "skeptical_question": "Why can we eliminate the entire half?",
+        "airtight_answer": "Array is strictly sorted. If nums[0] < 5, no element in the discarded half can ever equal 5."
+      }
+    },
+    {
+      "id": "bs_4",
+      "type": "decision",
+      "title": "Probe Midpoint: Index 1 (Value 4)",
+      "narration": "Search range [1..1]. Calculate mid = 1 + (1 - 1) / 2 = 1. nums[1] = 4.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Checking midpoint index 1 with value 4.",
+          "mood": "explaining"
+        },
+        {
+          "character_id": "data",
+          "text": "Target is 5. Comparing 4 vs 5.",
+          "mood": "neutral"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "2,4,6,8,10",
+          "highlight": true,
+          "index": 1,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "left",
+          "value": "1",
+          "highlight": false,
+          "index": null,
+          "target_index": 1,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "right",
+          "value": "1",
+          "highlight": false,
+          "index": null,
+          "target_index": 1,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "mid",
+          "value": "1",
+          "highlight": false,
+          "index": null,
+          "target_index": 1,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "5",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "nums[mid]",
+          "value": "4",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 5,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": {
+        "decision": "nums[mid] = 4 vs target = 5",
+        "limiting_factor": "Monotonicity: all items before index 1 are <= 4, items after are >= 4",
+        "invariant_proof": "If target is present, it MUST lie in [1..1].",
+        "skeptical_question": "Why can we eliminate the entire half?",
+        "airtight_answer": "Array is strictly sorted. If nums[1] < 5, no element in the discarded half can ever equal 5."
+      }
+    },
+    {
+      "id": "bs_5_miss",
+      "type": "result",
+      "title": "Target 5 Not in Array",
+      "narration": "Pointers crossed (left > right). Target 5 does not exist in array. Returns -1.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Target 5 is provably not present. Return -1.",
+          "mood": "confident"
+        },
+        {
+          "character_id": "bug",
+          "text": "All potential locations systematically ruled out.",
+          "mood": "neutral"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "2,4,6,8,10",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "result",
+          "value": "-1",
+          "highlight": true,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 9,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    }
+  ]
+}

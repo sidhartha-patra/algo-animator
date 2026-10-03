@@ -3,6 +3,8 @@ AlgoAnimator Simulator: Executes algorithms against comprehensive corner-case su
 Validates step invariants and generates structured AnimationSpecs for each case.
 """
 
+import ast
+import re
 from typing import List, Dict, Any, Tuple, Optional
 from schema import AnimationSpec, Scene, Character, StateItem, WhyExplanation, DialogueLine
 
@@ -321,3 +323,424 @@ def simulate_trapping_rain_water(case: CornerTestCase, source_code: Optional[str
     )
 
     return total_water, spec
+
+# ---------------------------------------------------------------------------
+# 2. Binary Search
+# ---------------------------------------------------------------------------
+def simulate_binary_search(nums: List[int], target: int, source_code: Optional[str] = None) -> Tuple[int, AnimationSpec]:
+    nums = sorted(nums)
+    n = len(nums)
+    raw_str = ",".join(str(x) for x in nums)
+    characters = [
+        Character(id="algo", name="Algo", role="Detective / Teacher", mood="explaining"),
+        Character(id="bug", name="Bug", role="Skeptic", mood="skeptical"),
+        Character(id="data", name="Data", role="Sorted Space", mood="neutral"),
+    ]
+
+    scenes: List[Scene] = []
+    scenes.append(Scene(
+        id="bs_1",
+        type="title",
+        title=f"Binary Search: Target {target}",
+        narration=f"Searching for target = {target} in sorted array of {n} elements: [{raw_str}].",
+        dialogue=[
+            DialogueLine(character_id="algo", text=f"Locating target {target}. Because the array is sorted, we eliminate half the candidate elements in each step!", mood="confident"),
+            DialogueLine(character_id="bug", text="Let's make sure our middle index calculation doesn't overflow or miss target.", mood="thinking")
+        ],
+        states=[
+            StateItem(kind="array", name="nums", value=raw_str),
+            StateItem(kind="variable", name="target", value=str(target)),
+        ],
+        code_line=1
+    ))
+
+    left, right = 0, n - 1
+    found_idx = -1
+    step = 2
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        mid_val = nums[mid]
+
+        scenes.append(Scene(
+            id=f"bs_{step}",
+            type="decision",
+            title=f"Probe Midpoint: Index {mid} (Value {mid_val})",
+            narration=f"Search range [{left}..{right}]. Calculate mid = {left} + ({right} - {left}) / 2 = {mid}. nums[{mid}] = {mid_val}.",
+            dialogue=[
+                DialogueLine(character_id="algo", text=f"Checking midpoint index {mid} with value {mid_val}.", mood="explaining"),
+                DialogueLine(character_id="data", text=f"Target is {target}. Comparing {mid_val} vs {target}.", mood="neutral")
+            ],
+            states=[
+                StateItem(kind="array", name="nums", value=raw_str, index=mid, highlight=True),
+                StateItem(kind="pointer", name="left", value=str(left), target_index=left),
+                StateItem(kind="pointer", name="right", value=str(right), target_index=right),
+                StateItem(kind="pointer", name="mid", value=str(mid), target_index=mid),
+                StateItem(kind="variable", name="target", value=str(target)),
+                StateItem(kind="variable", name="nums[mid]", value=str(mid_val)),
+            ],
+            code_line=5,
+            why=WhyExplanation(
+                decision=f"nums[mid] = {mid_val} vs target = {target}",
+                limiting_factor=f"Monotonicity: all items before index {mid} are <= {mid_val}, items after are >= {mid_val}",
+                invariant_proof=f"If target is present, it MUST lie in [{left}..{right}].",
+                skeptical_question="Why can we eliminate the entire half?",
+                airtight_answer=f"Array is strictly sorted. If nums[{mid}] {'<' if mid_val < target else '>'} {target}, no element in the discarded half can ever equal {target}."
+            )
+        ))
+        step += 1
+
+        if mid_val == target:
+            found_idx = mid
+            scenes.append(Scene(
+                id=f"bs_{step}_found",
+                type="result",
+                title=f"Target {target} Found at Index {mid}!",
+                narration=f"nums[{mid}] == {target}. Search succeeds in logarithmic time O(log N).",
+                dialogue=[
+                    DialogueLine(character_id="algo", text=f"Match confirmed! Target {target} is at index {mid}.", mood="celebrating"),
+                    DialogueLine(character_id="bug", text="Took only a few probes to search the entire array.", mood="celebrating")
+                ],
+                states=[
+                    StateItem(kind="array", name="nums", value=raw_str, index=mid, highlight=True),
+                    StateItem(kind="pointer", name="found", value=str(mid), target_index=mid),
+                    StateItem(kind="variable", name="result", value=str(mid), highlight=True),
+                ],
+                code_line=6
+            ))
+            break
+        elif mid_val < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    if found_idx == -1:
+        scenes.append(Scene(
+            id=f"bs_{step}_miss",
+            type="result",
+            title=f"Target {target} Not in Array",
+            narration=f"Pointers crossed (left > right). Target {target} does not exist in array. Returns -1.",
+            dialogue=[
+                DialogueLine(character_id="algo", text=f"Target {target} is provably not present. Return -1.", mood="confident"),
+                DialogueLine(character_id="bug", text="All potential locations systematically ruled out.", mood="neutral")
+            ],
+            states=[
+                StateItem(kind="array", name="nums", value=raw_str),
+                StateItem(kind="variable", name="result", value="-1", highlight=True),
+            ],
+            code_line=9
+        ))
+
+    spec = AnimationSpec(
+        title=f"Binary Search — Target {target}",
+        algorithm="Binary Search",
+        problem=f"Find index of target {target} in sorted array [{raw_str}]",
+        intuition="Halve the search space by probing the midpoint of the sorted range.",
+        visual_metaphor="Detective eliminating half the rooms at each step.",
+        invariant="Target is guaranteed to be within [left..right] if it exists in the array.",
+        time_complexity="O(log N)",
+        space_complexity="O(1)",
+        confidence=1.0,
+        source_code=source_code or """public int BinarySearch(int[] nums, int target)
+{
+    int left = 0, right = nums.Length - 1;
+    while (left <= right)
+    {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == target) return mid;
+        if (nums[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}""",
+        source_language="csharp",
+        characters=characters,
+        scenes=scenes
+    )
+    return found_idx, spec
+
+# ---------------------------------------------------------------------------
+# 3. Two Sum (Hash Map)
+# ---------------------------------------------------------------------------
+def simulate_two_sum(nums: List[int], target: int, source_code: Optional[str] = None) -> Tuple[List[int], AnimationSpec]:
+    n = len(nums)
+    raw_str = ",".join(str(x) for x in nums)
+    characters = [
+        Character(id="algo", name="Algo", role="Guide", mood="explaining"),
+        Character(id="bug", name="Bug", role="Interviewer", mood="thinking"),
+        Character(id="data", name="Data", role="Hash Table", mood="neutral"),
+    ]
+
+    scenes: List[Scene] = []
+    scenes.append(Scene(
+        id="ts_1",
+        type="title",
+        title=f"Two Sum: Target {target}",
+        narration=f"Find two indices in [{raw_str}] that sum to target {target} using a single-pass Hash Map.",
+        dialogue=[
+            DialogueLine(character_id="algo", text=f"Instead of O(N^2) double-looping, we store complements in a hash table for O(1) lookup!", mood="confident"),
+            DialogueLine(character_id="bug", text="As we inspect each number x, we look up if (target - x) was already seen.", mood="explaining")
+        ],
+        states=[
+            StateItem(kind="array", name="nums", value=raw_str),
+            StateItem(kind="variable", name="target", value=str(target)),
+        ],
+        code_line=1
+    ))
+
+    seen: Dict[int, int] = {}
+    result = []
+    step = 2
+
+    for i, num in enumerate(nums):
+        complement = target - num
+        seen_str = "{" + ", ".join(f"{k}:{v}" for k, v in seen.items()) + "}"
+
+        if complement in seen:
+            result = [seen[complement], i]
+            scenes.append(Scene(
+                id=f"ts_{step}_found",
+                type="result",
+                title=f"Complement Found! Indices [{seen[complement]}, {i}]",
+                narration=f"At index {i} (num={num}), complement = {target} - {num} = {complement} was found in hash map at index {seen[complement]}! Sum = {nums[seen[complement]]} + {num} = {target}.",
+                dialogue=[
+                    DialogueLine(character_id="algo", text=f"Match! nums[{seen[complement]}] ({complement}) + nums[{i}] ({num}) = {target}!", mood="celebrating"),
+                    DialogueLine(character_id="bug", text=f"Single-pass O(N) time with O(N) auxiliary hash table.", mood="celebrating")
+                ],
+                states=[
+                    StateItem(kind="array", name="nums", value=raw_str, index=i, highlight=True),
+                    StateItem(kind="pointer", name="prev", value=str(seen[complement]), target_index=seen[complement]),
+                    StateItem(kind="pointer", name="curr", value=str(i), target_index=i),
+                    StateItem(kind="variable", name="complement", value=str(complement)),
+                    StateItem(kind="variable", name="hash_map", value=seen_str),
+                    StateItem(kind="variable", name="result", value=f"[{seen[complement]}, {i}]", highlight=True),
+                ],
+                code_line=7
+            ))
+            break
+        else:
+            seen[num] = i
+            scenes.append(Scene(
+                id=f"ts_{step}_store",
+                type="step",
+                title=f"Inspect Index {i} ({num}): Look for {complement}",
+                narration=f"nums[{i}] = {num}. Need complement {complement}. Not in hash map yet. Store seen[{num}] = {i}.",
+                dialogue=[
+                    DialogueLine(character_id="algo", text=f"Checking index {i} (val {num}). Need {complement}. Not seen yet.", mood="explaining"),
+                    DialogueLine(character_id="data", text=f"Added {num} -> index {i} into hash table.", mood="neutral")
+                ],
+                states=[
+                    StateItem(kind="array", name="nums", value=raw_str, index=i, highlight=True),
+                    StateItem(kind="pointer", name="i", value=str(i), target_index=i),
+                    StateItem(kind="variable", name="needed", value=str(complement)),
+                    StateItem(kind="variable", name="hash_map", value=seen_str),
+                ],
+                code_line=9
+            ))
+        step += 1
+
+    spec = AnimationSpec(
+        title=f"Two Sum — Target {target}",
+        algorithm="Hash Map",
+        problem=f"Find indices in [{raw_str}] summing to {target}",
+        intuition="Maintain a lookup table of past elements to evaluate the required complement in O(1).",
+        visual_metaphor="Librarian with labeled drawers storing visited numbers.",
+        invariant="All elements before index i are recorded in hash table with their 0-based indices.",
+        time_complexity="O(N)",
+        space_complexity="O(N)",
+        confidence=1.0,
+        source_code=source_code or """public int[] TwoSum(int[] nums, int target)
+{
+    var seen = new Dictionary<int, int>();
+    for (int i = 0; i < nums.Length; i++)
+    {
+        int complement = target - nums[i];
+        if (seen.ContainsKey(complement))
+            return new int[] { seen[complement], i };
+        seen[nums[i]] = i;
+    }
+    return new int[0];
+}""",
+        source_language="csharp",
+        characters=characters,
+        scenes=scenes
+    )
+    return result, spec
+
+# ---------------------------------------------------------------------------
+# 4. Maximum Subarray (Kadane's / Sliding Window)
+# ---------------------------------------------------------------------------
+def simulate_sliding_window(nums: List[int], source_code: Optional[str] = None) -> Tuple[int, AnimationSpec]:
+    n = len(nums)
+    raw_str = ",".join(str(x) for x in nums)
+    characters = [
+        Character(id="algo", name="Algo", role="Guide", mood="explaining"),
+        Character(id="bug", name="Bug", role="Skeptic", mood="thinking"),
+        Character(id="data", name="Data", role="Array Segment", mood="neutral"),
+    ]
+
+    scenes: List[Scene] = []
+    scenes.append(Scene(
+        id="kad_1",
+        type="title",
+        title="Maximum Subarray (Kadane's Invariant)",
+        narration=f"Find the contiguous subarray in [{raw_str}] which has the largest sum.",
+        dialogue=[
+            DialogueLine(character_id="algo", text="Kadane's invariant: if the running sum drops below 0, it can never help future extensions!", mood="confident"),
+            DialogueLine(character_id="bug", text="So whenever currentSum < 0, we immediately discard the prefix and restart.", mood="explaining")
+        ],
+        states=[
+            StateItem(kind="array", name="nums", value=raw_str),
+            StateItem(kind="variable", name="maxSum", value=str(nums[0] if nums else 0)),
+        ],
+        code_line=1
+    ))
+
+    curr_sum = 0
+    max_sum = nums[0] if nums else 0
+    step = 2
+
+    for i, num in enumerate(nums):
+        if curr_sum < 0:
+            curr_sum = num
+            restarted = True
+        else:
+            curr_sum += num
+            restarted = False
+
+        if curr_sum > max_sum:
+            max_sum = curr_sum
+            new_best = True
+        else:
+            new_best = False
+
+        scenes.append(Scene(
+            id=f"kad_{step}",
+            type="decision" if (restarted or new_best) else "step",
+            title=f"Element {i} ({num}): Running Sum = {curr_sum}, Max = {max_sum}",
+            narration=f"At index {i} (val={num}). {'Prefix was negative; restarted window here. ' if restarted else ''}{'New global maximum! ' if new_best else ''}currentSum = {curr_sum}, maxSum = {max_sum}.",
+            dialogue=[
+                DialogueLine(character_id="algo", text=f"currentSum is now {curr_sum}. Global maxSum is {max_sum}." + (" (New record!)" if new_best else ""), mood="confident"),
+                DialogueLine(character_id="data", text=f"Inspecting index {i} with value {num}.", mood="neutral")
+            ],
+            states=[
+                StateItem(kind="array", name="nums", value=raw_str, index=i, highlight=True),
+                StateItem(kind="pointer", name="curr", value=str(i), target_index=i),
+                StateItem(kind="variable", name="currentSum", value=str(curr_sum), highlight=restarted),
+                StateItem(kind="variable", name="maxSum", value=str(max_sum), highlight=new_best),
+            ],
+            code_line=6,
+            why=WhyExplanation(
+                decision=f"num={num}, currSum={curr_sum}",
+                limiting_factor="Negative prefixes strictly diminish any subsequent subarray sum",
+                invariant_proof="A subarray ending at i either extends the best subarray ending at i-1 or starts fresh at i.",
+                skeptical_question="Why can we discard the previous prefix if it becomes negative?",
+                airtight_answer="Because any positive future segment would be even larger without that negative prefix."
+            ) if restarted else None
+        ))
+        step += 1
+
+    scenes.append(Scene(
+        id="kad_final",
+        type="result",
+        title=f"Result: Maximum Subarray Sum = {max_sum}",
+        narration=f"Evaluated all elements in O(N) time and O(1) space. The maximum contiguous sum is {max_sum}.",
+        dialogue=[
+            DialogueLine(character_id="algo", text=f"Final answer: {max_sum}! Optimal in a single O(N) pass.", mood="celebrating"),
+            DialogueLine(character_id="bug", text="Linear time without inspecting all O(N^2) pairs.", mood="celebrating")
+        ],
+        states=[
+            StateItem(kind="array", name="nums", value=raw_str),
+            StateItem(kind="variable", name="maxSum", value=str(max_sum), highlight=True),
+        ],
+        code_line=11
+    ))
+
+    spec = AnimationSpec(
+        title="Maximum Subarray (Kadane's Algorithm)",
+        algorithm="Dynamic Programming / Sliding Window",
+        problem=f"Find maximum contiguous sum in [{raw_str}]",
+        intuition="Discard negative prefixes; keep extending as long as prefix contributes positive sum.",
+        visual_metaphor="A moving spotlight expanding across positive terrain and resetting after dips.",
+        invariant="At step i, currentSum holds the maximum subarray sum ending strictly at index i.",
+        time_complexity="O(N)",
+        space_complexity="O(1)",
+        confidence=1.0,
+        source_code=source_code or """public int MaxSubArray(int[] nums)
+{
+    int currentSum = 0, maxSum = nums[0];
+    for (int i = 0; i < nums.Length; i++)
+    {
+        if (currentSum < 0) currentSum = 0;
+        currentSum += nums[i];
+        if (currentSum > maxSum) maxSum = currentSum;
+    }
+    return maxSum;
+}""",
+        source_language="csharp",
+        characters=characters,
+        scenes=scenes
+    )
+    return max_sum, spec
+
+# ---------------------------------------------------------------------------
+# 5. Universal Heuristic Simulator (Dispatches by Code Content)
+# ---------------------------------------------------------------------------
+def auto_simulate(code_str: str, input_str: str, title: Optional[str] = None) -> AnimationSpec:
+    code_lower = (code_str or "").lower()
+    title_lower = (title or "").lower()
+
+    # Extract target if specified (e.g. target=9, target: 5)
+    m_target = re.search(r"target\s*[:=]\s*(-?\d+)", input_str, re.I)
+    target = int(m_target.group(1)) if m_target else 9
+
+    # Clean array string
+    arr_str = re.sub(r"target\s*[:=]\s*-?\d+", "", input_str, flags=re.I).strip()
+    arr_str = arr_str.rstrip(",").strip()
+
+    m_bracket = re.search(r"\[(.*?)\]", arr_str)
+    if m_bracket:
+        arr_str = m_bracket.group(1)
+
+    arr = []
+    for token in arr_str.split(","):
+        token = token.strip()
+        if token:
+            try:
+                arr.append(int(token))
+            except ValueError:
+                pass
+
+    if not arr:
+        arr = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]
+
+    # Paradigm 1: Binary Search
+    if "binarysearch" in code_lower or "binary_search" in title_lower or ("left <= right" in code_lower and "mid" in code_lower):
+        arr = sorted(arr)
+        if target not in arr and arr:
+            target = arr[len(arr) // 2]
+        _, spec = simulate_binary_search(arr, target, code_str)
+        return spec
+
+    # Paradigm 2: Two Sum / Hash Map
+    if "twosum" in code_lower or "two_sum" in title_lower or ("complement" in code_lower and "seen" in code_lower) or "dictionary" in code_lower:
+        if len(arr) >= 2:
+            target = arr[0] + arr[1]
+        _, spec = simulate_two_sum(arr, target, code_str)
+        return spec
+
+    # Paradigm 3: Maximum Subarray / Kadane's / Sliding Window
+    if "maxsubarray" in code_lower or "kadane" in code_lower or "currentsum" in code_lower or "maxsum" in code_lower:
+        _, spec = simulate_sliding_window(arr, code_str)
+        return spec
+
+    # Paradigm 4: Trapping Rain Water / Elevation
+    if "trap" in code_lower or "rain" in code_lower or "water" in code_lower or "leftmax" in code_lower:
+        case = CornerTestCase("Custom Elevation", "User elevation map", arr, None)
+        _, spec = simulate_trapping_rain_water(case, code_str)
+        return spec
+
+    # Default fallback: Treat as Two Pointers / General Array Traversal
+    case = CornerTestCase("Custom Array", "User provided array", arr, None)
+    _, spec = simulate_trapping_rain_water(case, code_str)
+    return spec

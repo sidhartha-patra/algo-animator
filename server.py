@@ -80,25 +80,25 @@ class AlgoAnimatorHandler(SimpleHTTPRequestHandler):
             return
 
         if path == "/api/animate":
-            algo_text = data.get("algorithm", "Trapping Rain Water")
+            algo_text = data.get("algorithm", "Custom Algorithm")
             code_text = data.get("code", algoanimate.SAMPLE_CSHARP_CODE)
             input_val = data.get("input", "[0,1,0,2,1,0,1,3,2,1,2,1]")
             audience = data.get("audience", "interview")
 
             try:
-                # If Gemini API key is available, run model; otherwise use simulation engine
+                import simulator
+                # If Gemini API key is available, run model; otherwise use universal simulator
                 if os.environ.get("GEMINI_API_KEY"):
-                    prompt = algoanimate.build_prompt(algo_text, input_val, audience, code_text)
-                    spec = algoanimate.call_gemini(prompt)
-                    if not spec.source_code:
-                        spec.source_code = code_text
+                    try:
+                        prompt = algoanimate.build_prompt(algo_text, input_val, audience, code_text)
+                        spec = algoanimate.call_gemini(prompt)
+                        if not spec.source_code:
+                            spec.source_code = code_text
+                    except Exception as ge:
+                        print(f"Gemini call error: {ge}, using auto_simulate fallback.")
+                        spec = simulator.auto_simulate(code_text, input_val, algo_text)
                 else:
-                    # Clean input array
-                    import ast
-                    clean_arr = ast.literal_eval(input_val) if isinstance(input_val, str) and input_val.startswith("[") else [0,1,0,2,1,0,1,3,2,1,2,1]
-                    from simulator import CornerTestCase
-                    custom_case = CornerTestCase("Custom Input", "User provided input data", clean_arr, None)
-                    _, spec = simulate_trapping_rain_water(custom_case, code_text)
+                    spec = simulator.auto_simulate(code_text, input_val, algo_text)
 
                 # Render HTML
                 template = TEMPLATE_PATH.read_text(encoding="utf-8")
@@ -109,9 +109,12 @@ class AlgoAnimatorHandler(SimpleHTTPRequestHandler):
                     "spec": spec.model_dump(),
                     "html": html,
                     "title": spec.title,
+                    "algorithm": spec.algorithm,
                     "scenes_count": len(spec.scenes)
                 })
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 self.send_json(500, {"error": str(e)})
             return
 

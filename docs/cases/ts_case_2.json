@@ -1,0 +1,215 @@
+{
+  "title": "Two Sum — Target 6",
+  "algorithm": "Hash Map",
+  "problem": "Find indices in [3,3] summing to 6",
+  "intuition": "Maintain a lookup table of past elements to evaluate the required complement in O(1).",
+  "visual_metaphor": "Librarian with labeled drawers storing visited numbers.",
+  "invariant": "All elements before index i are recorded in hash table with their 0-based indices.",
+  "time_complexity": "O(N)",
+  "space_complexity": "O(N)",
+  "confidence": 1.0,
+  "source_code": "public int[] TwoSum(int[] nums, int target)\n{\n    var seen = new Dictionary<int, int>();\n    for (int i = 0; i < nums.Length; i++)\n    {\n        int complement = target - nums[i];\n        if (seen.ContainsKey(complement))\n            return new int[] { seen[complement], i };\n        seen[nums[i]] = i;\n    }\n    return new int[0];\n}",
+  "source_language": "csharp",
+  "characters": [
+    {
+      "id": "algo",
+      "name": "Algo",
+      "role": "Guide",
+      "mood": "explaining"
+    },
+    {
+      "id": "bug",
+      "name": "Bug",
+      "role": "Interviewer",
+      "mood": "thinking"
+    },
+    {
+      "id": "data",
+      "name": "Data",
+      "role": "Hash Table",
+      "mood": "neutral"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "ts_1",
+      "type": "title",
+      "title": "Two Sum: Target 6",
+      "narration": "Find two indices in [3,3] that sum to target 6 using a single-pass Hash Map.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Instead of O(N^2) double-looping, we store complements in a hash table for O(1) lookup!",
+          "mood": "confident"
+        },
+        {
+          "character_id": "bug",
+          "text": "As we inspect each number x, we look up if (target - x) was already seen.",
+          "mood": "explaining"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "3,3",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "target",
+          "value": "6",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 1,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    },
+    {
+      "id": "ts_2_store",
+      "type": "step",
+      "title": "Inspect Index 0 (3): Look for 3",
+      "narration": "nums[0] = 3. Need complement 3. Not in hash map yet. Store seen[3] = 0.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Checking index 0 (val 3). Need 3. Not seen yet.",
+          "mood": "explaining"
+        },
+        {
+          "character_id": "data",
+          "text": "Added 3 -> index 0 into hash table.",
+          "mood": "neutral"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "3,3",
+          "highlight": true,
+          "index": 0,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "i",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "needed",
+          "value": "3",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "hash_map",
+          "value": "{}",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 9,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    },
+    {
+      "id": "ts_3_found",
+      "type": "result",
+      "title": "Complement Found! Indices [0, 1]",
+      "narration": "At index 1 (num=3), complement = 6 - 3 = 3 was found in hash map at index 0! Sum = 3 + 3 = 6.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Match! nums[0] (3) + nums[1] (3) = 6!",
+          "mood": "celebrating"
+        },
+        {
+          "character_id": "bug",
+          "text": "Single-pass O(N) time with O(N) auxiliary hash table.",
+          "mood": "celebrating"
+        }
+      ],
+      "states": [
+        {
+          "kind": "array",
+          "name": "nums",
+          "value": "3,3",
+          "highlight": true,
+          "index": 1,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "prev",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": 0,
+          "color": null
+        },
+        {
+          "kind": "pointer",
+          "name": "curr",
+          "value": "1",
+          "highlight": false,
+          "index": null,
+          "target_index": 1,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "complement",
+          "value": "3",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "hash_map",
+          "value": "{3:0}",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "result",
+          "value": "[0, 1]",
+          "highlight": true,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 7,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    }
+  ]
+}

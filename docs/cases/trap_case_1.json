@@ -1,0 +1,119 @@
+{
+  "title": "Trapping Rain Water — Empty Elevation Map",
+  "algorithm": "Two Pointers",
+  "problem": "Given n non-negative integers representing an elevation map, compute trapped water.",
+  "intuition": "Water requires at least two opposing boundaries and an intermediate dip.",
+  "visual_metaphor": "Climbers inspect boundaries.",
+  "invariant": "When length < 3, trapped water is mathematically 0.",
+  "time_complexity": "O(N)",
+  "space_complexity": "O(1)",
+  "confidence": 1.0,
+  "source_code": null,
+  "source_language": "csharp",
+  "characters": [
+    {
+      "id": "algo",
+      "name": "Algo",
+      "role": "Guide & Teacher",
+      "mood": "explaining"
+    },
+    {
+      "id": "bug",
+      "name": "Bug",
+      "role": "Skeptical Interviewer",
+      "mood": "skeptical"
+    },
+    {
+      "id": "data",
+      "name": "Data",
+      "role": "Elevation Map",
+      "mood": "neutral"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1_init",
+      "type": "title",
+      "title": "Test Case: Empty Elevation Map",
+      "narration": "Testing input [] (Empty array (length 0). Invariant: no water can be trapped.). Expected output: 0.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Evaluating test case 'Empty Elevation Map' with input: [].",
+          "mood": "confident"
+        },
+        {
+          "character_id": "bug",
+          "text": "How will our two-pointer invariant handle this boundary condition?",
+          "mood": "thinking"
+        }
+      ],
+      "states": [
+        {
+          "kind": "text",
+          "name": "height",
+          "value": "[]",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "totalWater",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 1,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    },
+    {
+      "id": "s_edge",
+      "type": "result",
+      "title": "Corner Case Handled: Length 0",
+      "narration": "Because length is 0 < 3, no two opposing walls can trap water. Returns 0 immediately.",
+      "dialogue": [
+        {
+          "character_id": "algo",
+          "text": "Zero water trapped. Empty array: 0 elements.",
+          "mood": "confident"
+        },
+        {
+          "character_id": "bug",
+          "text": "Correct. A container requires at least two boundary walls and one interior cell.",
+          "mood": "celebrating"
+        }
+      ],
+      "states": [
+        {
+          "kind": "variable",
+          "name": "totalWater",
+          "value": "0",
+          "highlight": true,
+          "index": null,
+          "target_index": null,
+          "color": null
+        },
+        {
+          "kind": "variable",
+          "name": "length",
+          "value": "0",
+          "highlight": false,
+          "index": null,
+          "target_index": null,
+          "color": null
+        }
+      ],
+      "code_line": 7,
+      "duration_ms": 2000,
+      "focus": null,
+      "why": null
+    }
+  ]
+}

@@ -1,1045 +1,1002 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Algo Animator — Comic Algorithm Explainer</title>
+<title>AlgoAnimator — Algorithm Visualization & Invariant Verification Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f8f6f0;
-  --panel-bg: #ffffff;
-  --ink: #18181b;
-  --ink-muted: #52525b;
-  --border: 2.5px solid #18181b;
-  --shadow: 4px 4px 0 #18181b;
-  --shadow-sm: 2px 2px 0 #18181b;
-  --shadow-hover: 6px 6px 0 #18181b;
-  --algo-color: #fde047;
-  --bug-color: #67e8f9;
-  --data-color: #86efac;
-  --accent-coral: #fb7185;
-  --accent-teal: #2dd4bf;
-  --accent-blue: #38bdf8;
-  --why-bg: #fef9c3;
-  --why-border: #eab308;
-  --code-bg: #1e1e24;
-  --code-fg: #f4f4f5;
-  --radius: 16px;
+  --bg-app: #09090b;
+  --bg-surface: #121216;
+  --bg-surface-elevated: #18181f;
+  --bg-surface-active: #20202a;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(255, 255, 255, 0.22);
+  --border-highlight: rgba(245, 158, 11, 0.35);
+
+  --text-primary: #f4f4f6;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --accent-amber: #f59e0b;
+  --accent-amber-glow: rgba(245, 158, 11, 0.15);
+  --accent-cyan: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.15);
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.15);
+  --accent-rose: #f43f5e;
+  --accent-purple: #a855f7;
+
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+  --shadow-active: 0 8px 30px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--border-focus);
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
   line-height: 1.5;
-  padding: 24px 16px;
+  -webkit-font-smoothing: antialiased;
+  padding: 16px;
+  min-height: 100vh;
 }
 
 #app {
-  max-width: 1300px;
+  max-width: 1380px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-.panel {
-  background: var(--panel-bg);
-  border: var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+/* Command Bar / Navigation */
+.nav-header {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #000;
+  font-size: 20px;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+}
+.brand-title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.version-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+  text-decoration: none;
+}
+.action-btn:hover {
+  background: var(--bg-surface-active);
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+}
+.action-btn.primary {
+  background: #f59e0b;
+  color: #09090b;
+  border-color: #f59e0b;
+  font-weight: 700;
+}
+.action-btn.primary:hover {
+  background: #fbbf24;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+}
+
+.tunnel-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+}
+.tunnel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.tunnel-dot.active {
+  background: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+/* Algorithm Presets Ribbon */
+.ribbon-bar {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-card);
+}
+.ribbon-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+.presets-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.preset-chip {
+  padding: 6px 13px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.preset-chip:hover {
+  background: var(--bg-surface-active);
+  color: #fff;
+  border-color: var(--border-focus);
+}
+.preset-chip.active {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+  font-weight: 700;
+}
+
+/* Overview Header Card */
+.overview-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   padding: 20px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
 }
-
-/* Header */
-.header-row {
+.overview-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent);
+}
+.overview-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 12px;
 }
-h1 {
-  margin: 0 0 6px 0;
-  font-size: 28px;
+.algo-heading {
+  font-size: 26px;
   font-weight: 900;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.6px;
+  margin: 0 0 4px 0;
+  color: #ffffff;
 }
-.sub {
-  color: var(--ink-muted);
-  font-size: 15px;
+.algo-meta {
+  font-size: 14px;
+  color: var(--text-secondary);
   font-weight: 500;
 }
-.badge-group {
+.metric-pills {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-.badge {
+.pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border: var(--border);
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 800;
-  background: #f4f4f5;
-  box-shadow: var(--shadow-sm);
+  gap: 5px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
 }
-.badge.time { background: #dcfce7; color: #166534; }
-.badge.space { background: #e0f2fe; color: #075985; }
-.badge.metaphor { background: #fef3c7; color: #92400e; }
-.badge.type { background: #fae8ff; color: #86198f; text-transform: uppercase; font-size: 11px; }
+.pill.time { background: var(--accent-emerald-glow); color: #34d399; border-color: rgba(52, 211, 153, 0.25); font-family: var(--font-mono); }
+.pill.space { background: var(--accent-cyan-glow); color: #38bdf8; border-color: rgba(56, 189, 248, 0.25); font-family: var(--font-mono); }
+.pill.paradigm { background: var(--accent-amber-glow); color: #fbbf24; border-color: rgba(245, 158, 11, 0.25); }
 
-/* Intuition Box */
-.intuition-card {
+.intuition-box {
   margin-top: 14px;
   padding: 12px 16px;
-  border: var(--border);
-  border-radius: 12px;
-  background: #fffbeb;
-  font-size: 14.5px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.6;
 }
+.intuition-box strong { color: #fbbf24; }
 
-/* Main Split Stage */
+/* Stage Split Grid */
 .stage-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 14px;
 }
-@media (min-width: 980px) {
+@media (min-width: 1040px) {
   .stage-grid.with-code {
-    grid-template-columns: 1fr 420px;
+    grid-template-columns: 1fr 440px;
   }
 }
 
-/* Comic dialogue bar */
-#comic-strip {
-  min-height: 125px;
-  margin-bottom: 20px;
+.studio-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  justify-content: flex-end;
+  gap: 16px;
 }
-.dialogue-bubble-row {
+
+/* Comic Editorial Conversation */
+#dialogue-stage {
+  min-height: 110px;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.speech-row {
+  display: flex;
+  align-items: flex-start;
   gap: 12px;
-  animation: popIn 0.25s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
-.dialogue-bubble-row.algo {
-  align-self: flex-start;
-}
-.dialogue-bubble-row.bug {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-}
-.dialogue-bubble-row.data {
-  align-self: center;
-}
-.avatar {
-  width: 48px;
-  height: 48px;
-  border: var(--border);
-  border-radius: 50%;
+.speech-row.algo { align-self: flex-start; }
+.speech-row.bug { align-self: flex-end; flex-direction: row-reverse; }
+.speech-row.data { align-self: center; }
+
+.char-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
   display: grid;
   place-items: center;
-  font-size: 22px;
-  font-weight: 900;
-  box-shadow: var(--shadow-sm);
+  font-size: 20px;
   flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
 }
-.avatar.algo { background: var(--algo-color); }
-.avatar.bug { background: var(--bug-color); }
-.avatar.data { background: var(--data-color); border-radius: 12px; }
+.char-badge.algo { background: #78350f; color: #fbbf24; border-color: #f59e0b; }
+.char-badge.bug { background: #164e63; color: #22d3ee; border-color: #06b6d4; }
+.char-badge.data { background: #064e3b; color: #34d399; border-color: #10b981; }
 
 .speech-bubble {
-  background: #ffffff;
-  border: var(--border);
-  border-radius: 16px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
   padding: 10px 16px;
-  max-width: 480px;
-  font-size: 14.5px;
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-  position: relative;
+  max-width: 520px;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
-.dialogue-bubble-row.algo .speech-bubble::before {
-  content: "";
-  position: absolute;
-  left: -10px;
-  bottom: 12px;
-  border-width: 6px 10px 6px 0;
-  border-style: solid;
-  border-color: transparent #18181b transparent transparent;
+.speech-bubble b {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 2px;
 }
-.dialogue-bubble-row.bug .speech-bubble::before {
-  content: "";
-  position: absolute;
-  right: -10px;
-  bottom: 12px;
-  border-width: 6px 0 6px 10px;
-  border-style: solid;
-  border-color: transparent transparent transparent #18181b;
-}
+.speech-row.algo .speech-bubble b { color: #fbbf24; }
+.speech-row.bug .speech-bubble b { color: #22d3ee; }
+.speech-row.data .speech-bubble b { color: #34d399; }
 
-/* Visualization Canvas */
-#data-canvas {
-  min-height: 220px;
-  border: var(--border);
-  border-radius: 14px;
-  background: #fafaf9;
+/* Visual Data Canvas */
+#visual-canvas {
+  background: #0d0d11;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  min-height: 230px;
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   overflow-x: auto;
   position: relative;
 }
 
-/* Bar / Height representation overlay */
-.bar-chart-container {
+/* Bar Chart Canvas for Elevation / Rain */
+.chart-container {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 8px;
-  height: 120px;
+  height: 110px;
   width: 100%;
-  padding-bottom: 4px;
 }
 .bar-col {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  width: 54px;
-  position: relative;
+  width: 50px;
 }
 .water-block {
   width: 100%;
-  background: rgba(56, 189, 248, 0.7);
-  border: 2px dashed #0284c7;
+  background: rgba(14, 165, 233, 0.65);
+  border: 1px dashed #38bdf8;
   border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 4px 4px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   font-weight: 800;
-  color: #0369a1;
+  color: #e0f2fe;
 }
-.height-block {
+.height-bar {
   width: 100%;
-  background: #64748b;
-  border: var(--border);
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
+  background: #3f3f46;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px 4px 0 0;
+  transition: all 0.25s ease;
 }
-.height-block.active {
-  background: var(--algo-color);
-}
-.height-block.finalized {
-  background: #475569;
-}
+.height-bar.active { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
 
-/* Array Row */
-.array-wrapper {
+/* Array Structure Cells */
+.array-strip {
   display: flex;
   justify-content: center;
   gap: 8px;
   position: relative;
-  padding: 26px 0 38px 0;
+  padding: 22px 0 32px 0;
 }
-.array-cell-container {
+.cell-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
 }
-.cell-index {
+.cell-idx {
   position: absolute;
-  top: -22px;
+  top: -20px;
   font-size: 11px;
-  font-weight: 800;
-  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  color: var(--text-muted);
 }
 .array-cell {
-  width: 54px;
-  height: 54px;
-  border: var(--border);
-  border-radius: 12px;
-  background: #ffffff;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
   display: grid;
   place-items: center;
-  font-size: 20px;
-  font-weight: 800;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-size: 18px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 .array-cell.hot {
-  background: var(--algo-color);
-  transform: translateY(-6px);
-  box-shadow: var(--shadow);
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  transform: translateY(-4px);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
 }
-.array-cell.active-left {
-  background: #ffe4e6;
-  border-color: var(--accent-coral);
+.array-cell.left-active {
+  border-color: var(--accent-rose);
+  background: rgba(244, 63, 94, 0.15);
 }
-.array-cell.active-right {
-  background: #ccfbf1;
-  border-color: var(--accent-teal);
+.array-cell.right-active {
+  border-color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.15);
 }
-.array-cell.finalized {
-  background: #e2e8f0;
-  color: #475569;
+.array-cell.mid-active {
+  border-color: var(--accent-purple);
+  background: rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
+}
+.array-cell.eliminated {
+  opacity: 0.35;
+  background: #18181b;
 }
 
-/* Dynamic Pointers */
-.pointer-label {
+.pointer-chip {
   position: absolute;
-  bottom: -32px;
+  bottom: -28px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 800;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  animation: bounce 0.4s ease-out;
 }
-.pointer-label.left-pointer { color: #e11d48; }
-.pointer-label.right-pointer { color: #0d9488; }
-.pointer-label.general-pointer { color: #4338ca; }
-.pointer-arrow {
-  font-size: 14px;
-  line-height: 1;
-}
+.pointer-chip.left { color: var(--accent-rose); }
+.pointer-chip.right { color: var(--accent-cyan); }
+.pointer-chip.mid { color: var(--accent-purple); }
+.pointer-chip.general { color: var(--accent-amber); }
 
-/* Variables & State Strip */
-.variables-row {
+/* Variables Row */
+.variables-grid {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
 }
-.var-pill {
+.var-card {
   padding: 6px 14px;
-  border: var(--border);
-  border-radius: 10px;
-  background: #ffffff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.25s ease;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.var-pill.highlight {
-  background: #bbf7d0;
-  border-color: #15803d;
-  transform: scale(1.05);
+.var-card.highlight {
+  background: var(--accent-emerald-glow);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
 }
 
-/* Narration & Scene info */
-#narration-box {
-  margin-top: 14px;
-  font-size: 16px;
-  font-weight: 500;
-  min-height: 56px;
-  padding: 12px 16px;
-  background: #f8fafc;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 10px;
+/* Scene Narration */
+.narration-panel {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
 }
-#narration-title {
+.narration-title {
+  font-size: 15px;
   font-weight: 800;
-  font-size: 17px;
+  color: #fff;
   margin-bottom: 4px;
-  color: #0f172a;
-}
-
-/* The Killer Feature: "Why is this safe?" */
-#why-card {
-  margin-top: 14px;
-  border: 2.5px solid var(--why-border);
-  border-radius: 12px;
-  background: var(--why-bg);
-  box-shadow: var(--shadow-sm);
-  padding: 16px;
-  display: none;
-  animation: fadeIn 0.3s ease;
-}
-#why-card.active {
-  display: block;
-}
-.why-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 900;
-  color: #854d0e;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  gap: 8px;
 }
-.why-grid {
+.narration-body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* The Killer Feature: "Why is this safe?" Inspector */
+#why-inspector {
+  border-radius: var(--radius-md);
+  background: #151408;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 16px;
+  display: none;
+  animation: fadeIn 0.2s ease-out;
+}
+#why-inspector.active { display: block; }
+
+.why-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.why-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.why-cards-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 10px;
 }
-@media (min-width: 640px) {
-  .why-grid { grid-template-columns: 1fr 1fr; }
+@media (min-width: 600px) {
+  .why-cards-grid { grid-template-columns: 1fr 1fr; }
 }
-.why-step-box {
-  background: #ffffff;
-  border: 1.5px solid #ca8a04;
-  border-radius: 8px;
+
+.why-cell {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 13.5px;
 }
-.why-step-box b {
-  color: #a16207;
+.why-cell label {
   display: block;
-  font-size: 11.5px;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
+  color: #d97706;
   margin-bottom: 3px;
-}
-.why-dialogue {
-  grid-column: 1 / -1;
-  background: #ffffff;
-  border: 1.5px solid #ca8a04;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 13.5px;
-}
-.why-q {
-  color: #0284c7;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-.why-a {
-  color: #15803d;
-  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-/* Code Panel */
-#code-panel {
-  display: none;
-  background: var(--code-bg);
-  border: var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 16px;
-  color: var(--code-fg);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  max-height: 640px;
-  overflow-y: auto;
+.why-debate-box {
+  grid-column: 1 / -1;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.code-panel-header {
-  font-weight: 800;
-  font-size: 13px;
-  color: #94a3b8;
-  margin-bottom: 12px;
+.why-debate-q { color: #38bdf8; font-weight: 600; }
+.why-debate-a { color: #34d399; font-weight: 600; }
+
+/* Side Code Panel */
+#code-studio {
+  background: #09090c;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card);
+  max-height: 640px;
+}
+.code-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 6px;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 10px;
 }
-.code-line {
-  padding: 2px 8px;
-  border-radius: 4px;
-  display: flex;
-  gap: 12px;
-  white-space: pre;
-}
-.line-num {
-  color: #64748b;
-  width: 24px;
-  text-align: right;
-  user-select: none;
-}
-.code-line.active {
-  background: #3b82f6;
-  color: #ffffff;
-  font-weight: 800;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-}
-.code-line.active .line-num {
-  color: #ffffff;
-}
-
-/* Control Bar */
-.control-bar {
+.code-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
-.btn {
-  background: #ffffff;
-  border: var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-  padding: 8px 16px;
+.code-lines-scroll {
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.code-row {
+  display: flex;
+  gap: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: pre;
+  color: #d4d4d8;
+}
+.code-num {
+  width: 24px;
+  text-align: right;
+  color: #52525b;
+  user-select: none;
+  font-size: 11.5px;
+}
+.code-row.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-left: 2px solid #f59e0b;
+  color: #fff;
+  font-weight: 600;
+}
+.code-row.active .code-num { color: #f59e0b; }
+
+/* Playback Control Bar */
+.control-bar {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-media {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
   font-size: 14px;
-  font-weight: 800;
-  color: var(--ink);
+  font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: all 0.15s ease;
-  user-select: none;
 }
-.btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: var(--shadow);
+.btn-media:hover {
+  background: var(--bg-surface-active);
+  border-color: var(--border-focus);
 }
-.btn:active {
-  transform: translate(1px, 1px);
-  box-shadow: none;
+.btn-media.play {
+  background: #f59e0b;
+  color: #09090b;
+  border-color: #f59e0b;
+  font-weight: 800;
 }
-.btn.primary {
-  background: var(--algo-color);
-}
-.btn.active-toggle {
-  background: #fed7aa;
-  border-color: #ea580c;
-}
+.btn-media.play:hover { background: #fbbf24; }
+
 input[type=range] {
   flex: 1;
   min-width: 140px;
-  accent-color: #18181b;
+  accent-color: #f59e0b;
   cursor: pointer;
 }
-.scene-select {
-  border: var(--border);
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-weight: 700;
-  background: #fff;
-  font-size: 13px;
-  cursor: pointer;
-}
-.speed-group {
-  display: flex;
-  border: var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.speed-btn {
-  border: none;
-  border-right: 1.5px solid #18181b;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 800;
-  background: #fff;
-  cursor: pointer;
-}
-.speed-btn:last-child { border-right: none; }
-.speed-btn.active { background: #18181b; color: #fff; }
 
-.shortcut-hint {
-  font-size: 12px;
-  color: var(--ink-muted);
+.step-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 55px;
+}
+
+.select-dropdown {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: none;
+  place-items: center;
+  z-index: 9999;
+  padding: 16px;
+}
+.modal-backdrop.open { display: grid; }
+
+.modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  max-width: 680px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-field label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.form-input {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #fff;
+  font-family: var(--font-mono);
+}
+.form-input:focus {
+  outline: none;
+  border-color: #f59e0b;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
   margin-top: 6px;
 }
-kbd {
-  background: #e4e4e7;
-  border: 1px solid #a1a1aa;
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-family: inherit;
-  font-size: 11px;
-}
 
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.9) translateY(4px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes bounce {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- Header Card -->
-  <div class="panel">
-    <div class="header-row">
+  <!-- Nav Bar -->
+  <header class="nav-header">
+    <div class="brand-group">
+      <div class="brand-mark">🎬</div>
       <div>
-        <h1 id="algo-title">Algo Animator</h1>
-        <div class="sub" id="algo-sub">Algorithm Visualizer</div>
-      </div>
-      <div class="badge-group" id="badge-group">
-        <span class="badge time" id="badge-time">Time: O(N)</span>
-        <span class="badge space" id="badge-space">Space: O(1)</span>
-        <span class="badge metaphor" id="badge-metaphor" style="display:none;"></span>
-        <span class="badge type" id="badge-type">INIT</span>
+        <div class="brand-title">AlgoAnimator <span class="version-pill">v2.0 Linear Edition</span></div>
       </div>
     </div>
-    <div class="intuition-card" id="intuition-card">
-      <b>💡 Key Insight / Invariant:</b> <span id="intuition-text"></span>
+    <div class="nav-actions">
+      <div class="tunnel-indicator" id="tunnel-badge">
+        <span class="tunnel-dot" id="tunnel-dot"></span>
+        <span id="tunnel-status-text">Static Engine</span>
+      </div>
+      <button class="action-btn" onclick="openTunnelModal()">🔌 Dev Tunnel</button>
+      <button class="action-btn primary" onclick="openUploadModal()">📁 Upload / Paste C#</button>
+      <a href="https://github.com/sidhartha-patra/algo-animator" target="_blank" class="action-btn">⭐ GitHub</a>
+    </div>
+  </header>
+
+  <!-- Algorithm Paradigms & Test Suites -->
+  <div class="ribbon-bar">
+    <div class="ribbon-title">Interactive Algorithm Paradigms & Corner Cases</div>
+    <div class="presets-list" id="presets-ribbon">
+      <button class="preset-chip active" onclick="switchParadigm('trapping')">💧 Trapping Rain Water (2-Pointer)</button>
+      <button class="preset-chip" onclick="switchParadigm('binary_search')">🔍 Binary Search (O(log N))</button>
+      <button class="preset-chip" onclick="switchParadigm('two_sum')">⚡ Two Sum (Hash Map)</button>
+      <button class="preset-chip" onclick="switchParadigm('kadane')">📈 Max Subarray (Kadane / Sliding Window)</button>
     </div>
   </div>
 
-  <!-- Stage Grid: Animation + Code Panel -->
-  <div class="stage-grid" id="stage-grid">
-    <!-- Main Visual Stage -->
-    <div class="panel" style="overflow: hidden;">
-      <!-- Comic dialogue row -->
-      <div id="comic-strip"></div>
+  <!-- Header Card -->
+  <div class="overview-card">
+    <div class="overview-top">
+      <div>
+        <h1 class="algo-heading" id="algo-title">Trapping Rain Water</h1>
+        <div class="algo-meta" id="algo-sub">Two Pointers — Elevation Basin Invariant</div>
+      </div>
+      <div class="metric-pills">
+        <span class="pill time" id="pill-time">Time: O(N)</span>
+        <span class="pill space" id="pill-space">Space: O(1)</span>
+        <span class="pill paradigm" id="pill-paradigm">Two Pointers</span>
+      </div>
+    </div>
+    <div class="intuition-box" id="intuition-card">
+      <b>💡 Core Invariant:</b> <span id="intuition-text"></span>
+    </div>
+  </div>
 
-      <!-- Data structure visual canvas -->
-      <div id="data-canvas"></div>
+  <!-- Main Split Studio Stage -->
+  <div class="stage-grid with-code" id="stage-grid">
+    <div class="studio-panel">
+      <!-- Comic Dialogue -->
+      <div id="dialogue-stage"></div>
 
-      <!-- Narration Box -->
-      <div id="narration-box">
-        <div id="narration-title">Scene</div>
-        <div id="narration-text">Explanation</div>
+      <!-- Visual Canvas -->
+      <div id="visual-canvas"></div>
+
+      <!-- Narration -->
+      <div class="narration-panel">
+        <div class="narration-title" id="narration-title">Scene</div>
+        <div class="narration-body" id="narration-text">Explanation</div>
       </div>
 
-      <!-- "Why is this safe?" Card (The Killer Feature) -->
-      <div id="why-card">
-        <div class="why-header">
-          <span>🛡️ Why is this decision safe? (Staff Invariant)</span>
-          <span style="font-size:12px; font-weight:normal; text-transform:none;">Press <b>W</b> to toggle</span>
+      <!-- "Why is this safe?" Inspector -->
+      <div id="why-inspector">
+        <div class="why-top">
+          <div class="why-title">🛡️ Formal Invariant Guarantee ("Why is this safe?")</div>
+          <span style="font-size:11px; color:var(--text-muted);">Press <kbd style="background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:3px;">W</kbd> to toggle</span>
         </div>
-        <div class="why-grid">
-          <div class="why-step-box">
-            <b>1. Decision Condition</b>
+        <div class="why-cards-grid">
+          <div class="why-cell">
+            <label>1. Decision Rule</label>
             <span id="why-decision"></span>
           </div>
-          <div class="why-step-box">
-            <b>2. Limiting Bottleneck</b>
+          <div class="why-cell">
+            <label>2. Limiting Bottleneck</label>
             <span id="why-limiting"></span>
           </div>
-          <div class="why-step-box" style="grid-column: 1 / -1;">
-            <b>3. Invariant Guarantee</b>
+          <div class="why-cell" style="grid-column: 1 / -1;">
+            <label>3. Invariant Proof</label>
             <span id="why-invariant"></span>
           </div>
-          <div class="why-dialogue">
-            <div class="why-q" id="why-q">🤔 Bug: "Couldn't a taller wall change this?"</div>
-            <div class="why-a" id="why-a">🧑 Algo: "No. The right side is already taller..."</div>
+          <div class="why-debate-box">
+            <div class="why-debate-q" id="why-q">🤔 Bug: "Couldn't an unseen element change this?"</div>
+            <div class="why-debate-a" id="why-a">🧑 Algo: "No. The bounding invariant guarantees safety."</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Optional Code Panel -->
-    <div id="code-panel">
-      <div class="code-panel-header">
-        <span>Source Code (<span id="source-lang">C#</span>)</span>
-        <span id="active-line-badge">Line: -</span>
+    <!-- Code Studio Panel -->
+    <div id="code-studio">
+      <div class="code-header">
+        <div class="code-title">
+          <span>Source Code</span>
+          <span class="version-pill" id="code-lang-pill">C#</span>
+        </div>
+        <span class="version-pill" id="active-line-pill">Line: -</span>
       </div>
-      <div id="code-lines"></div>
+      <div class="code-lines-scroll" id="code-lines"></div>
     </div>
   </div>
 
-  <!-- Interactive Controls -->
-  <div class="panel">
-    <div class="control-bar">
-      <button class="btn" onclick="first()" title="Home">⏮</button>
-      <button class="btn" onclick="prev()" title="Left Arrow">◀</button>
-      <button class="btn primary" onclick="togglePlay()" id="play-btn">▶ Play</button>
-      <button class="btn" onclick="next()" title="Right Arrow">▶</button>
-      <button class="btn" onclick="last()" title="End">⏭</button>
+  <!-- Playback Control Bar -->
+  <div class="control-bar">
+    <button class="btn-media" onclick="first()" title="Home">⏮</button>
+    <button class="btn-media" onclick="prev()" title="Left Arrow">◀</button>
+    <button class="btn-media play" onclick="togglePlay()" id="play-btn">▶ Play</button>
+    <button class="btn-media" onclick="next()" title="Right Arrow">▶</button>
+    <button class="btn-media" onclick="last()" title="End">⏭</button>
 
-      <input type="range" id="timeline-slider" min="0" max="0" value="0" oninput="goToScene(+this.value)">
+    <input type="range" id="timeline-slider" min="0" max="0" value="0" oninput="goToScene(+this.value)">
+    <span class="step-label" id="step-counter">1/1</span>
 
-      <span style="font-weight: 800; font-family: monospace; min-width: 60px;" id="step-counter">1/1</span>
+    <select class="select-dropdown" id="scene-select" onchange="goToScene(+this.value)"></select>
 
-      <select class="scene-select" id="scene-select" onchange="goToScene(+this.value)"></select>
+    <button class="action-btn" onclick="toggleWhyMode()">💡 Why Mode</button>
+  </div>
+</div>
 
-      <div class="speed-group">
-        <button class="speed-btn" onclick="setSpeed(0.5, this)">0.5x</button>
-        <button class="speed-btn active" onclick="setSpeed(1, this)">1x</button>
-        <button class="speed-btn" onclick="setSpeed(1.5, this)">1.5x</button>
-        <button class="speed-btn" onclick="setSpeed(2, this)">2x</button>
-      </div>
+<!-- Upload / Custom C# Code Modal -->
+<div class="modal-backdrop" id="upload-modal">
+  <div class="modal-box">
+    <h2 class="modal-title">📁 Upload Custom C# Solution</h2>
+    <p style="font-size:13px; color:var(--text-secondary); margin:0;">
+      Upload any C# algorithm file (Binary Search, Two Sum, Sliding Window, Trapping Rain Water, etc.) or paste code directly. The engine simulates the execution and proves invariants step-by-step.
+    </p>
 
-      <button class="btn" id="why-toggle-btn" onclick="toggleWhyMode()">💡 Why Mode</button>
+    <div class="form-field">
+      <label>Upload .cs File</label>
+      <input type="file" id="code-file-input" accept=".cs,.txt,.py,.java,.cpp" class="form-input" onchange="handleFileUpload(event)">
     </div>
-    <div class="shortcut-hint">
-      <span>Shortcuts: <kbd>Space</kbd> Play/Pause</span>
-      <span><kbd>←</kbd> <kbd>→</kbd> Step Back/Fwd</span>
-      <span><kbd>Home</kbd> <kbd>End</kbd> First/Last</span>
-      <span><kbd>W</kbd> Toggle "Why is this safe?"</span>
+
+    <div class="form-field">
+      <label>Algorithm Name</label>
+      <input type="text" class="form-input" id="custom-algo-title" value="Binary Search">
+    </div>
+
+    <div class="form-field">
+      <label>C# Source Code</label>
+      <textarea id="custom-code-area" class="form-input" style="height:150px; font-size:12px; resize:vertical;">public int BinarySearch(int[] nums, int target)
+{
+    int left = 0, right = nums.Length - 1;
+    while (left <= right)
+    {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == target) return mid;
+        if (nums[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}</textarea>
+    </div>
+
+    <div class="form-field">
+      <label>Test Case Array (and optional target)</label>
+      <input type="text" class="form-input" id="custom-input-data" value="[-1, 0, 3, 5, 9, 12], target=9">
+    </div>
+
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeUploadModal()">Cancel</button>
+      <button class="action-btn primary" onclick="runCustomCode()">Simulate & Animate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dev Tunnel Modal -->
+<div class="modal-backdrop" id="tunnel-modal">
+  <div class="modal-box">
+    <h2 class="modal-title">🔌 Connect to Microsoft Dev Tunnel</h2>
+    <p style="font-size:13px; color:var(--text-secondary); margin:0;">
+      Connect to your local AlgoAnimator backend service (running with Copilot CLI or Gemini) via Microsoft Dev Tunnels.
+    </p>
+    <div class="form-field">
+      <label>Tunnel Endpoint URL</label>
+      <input type="text" class="form-input" id="tunnel-url-input" placeholder="https://<tunnel-id>.devtunnels.ms (or http://localhost:8000)">
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeTunnelModal()">Cancel</button>
+      <button class="action-btn primary" onclick="saveTunnelUrl()">Connect</button>
     </div>
   </div>
 </div>
 
 <script>
-const SPEC = {"title": "Trapping Rain Water", "algorithm": "Two Pointers", "problem": "Given n non-negative integers representing an elevation map where width of each bar is 1, compute how much water it can trap after raining.", "intuition": "Water trapped at any bar i is min(leftMax, rightMax) - height[i]. By keeping two pointers and moving whichever side has the smaller max, we know with 100% certainty that the smaller side is the limiting factor.", "visual_metaphor": "Two climbers walking inward from opposite mountain ridges, measuring bounding walls and filling trapped pools.", "invariant": "At any step, if leftMax < rightMax, the water level at the left pointer is strictly bounded by leftMax, regardless of unseen heights in between.", "time_complexity": "O(N)", "space_complexity": "O(1)", "confidence": 1.0, "source_code": "public int Trap(int[] height)\n{\n    int left = 0, right = height.Length - 1;\n    int leftMax = 0, rightMax = 0;\n    int totalWater = 0;\n\n    while (left < right)\n    {\n        if (height[left] < height[right])\n        {\n            if (height[left] >= leftMax)\n                leftMax = height[left];\n            else\n                totalWater += leftMax - height[left];\n            left++;\n        }\n        else\n        {\n            if (height[right] >= rightMax)\n                rightMax = height[right];\n            else\n                totalWater += rightMax - height[right];\n            right--;\n        }\n    }\n    return totalWater;\n}", "source_language": "csharp", "characters": [{"id": "algo", "name": "Algo", "role": "Guide & Teacher", "mood": "explaining"}, {"id": "bug", "name": "Bug", "role": "Skeptical Interviewer", "mood": "skeptical"}, {"id": "data", "name": "Data", "role": "Array Wall", "mood": "neutral"}], "scenes": [{"id": "s1", "type": "title", "title": "Trapping Rain Water — Two Pointer Invariant", "narration": "Given an elevation map where each bar has width 1, compute how much water it can trap after raining. We contrast the O(N) space prefix approach with an O(1) space two-pointer invariant.", "dialogue": [{"character_id": "algo", "text": "Welcome! Today we master the two-pointer invariant for Trapping Rain Water.", "mood": "confident"}, {"character_id": "bug", "text": "I know the O(N) prefix max solution, but why does two pointers work without looking at all walls?", "mood": "skeptical"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 1, "duration_ms": 2500, "focus": null, "why": null}, {"id": "s2", "type": "intuition", "title": "Intuition: The Bottleneck Principle", "narration": "Water trapped at index i is determined by: min(max_left, max_right) - height[i]. If leftMax < rightMax, the left side is the strictly limiting wall, regardless of any unknown peaks in the middle!", "dialogue": [{"character_id": "algo", "text": "Water only spills over the SHORTER wall. If left is shorter than right, the right side cannot lower the water ceiling!", "mood": "explaining"}, {"character_id": "bug", "text": "So we don't need to know the exact right maximum—just that it's at least as tall as leftMax!", "mood": "thinking"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "left", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "right", "value": "11", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 7, "duration_ms": 2500, "focus": null, "why": null}, {"id": "s3", "type": "setup", "title": "Initial State & Two Pointers", "narration": "Initialize left pointer at index 0 and right pointer at index 11. leftMax = 0, rightMax = 0, totalWater = 0.", "dialogue": [{"character_id": "algo", "text": "Two climbers start at opposite ends. Let's see who faces the shorter wall.", "mood": "confident"}, {"character_id": "data", "text": "Climbers at index 0 (height 0) and index 11 (height 1).", "mood": "neutral"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "0", "highlight": false, "index": null, "target_index": 0, "color": null}, {"kind": "pointer", "name": "right", "value": "11", "highlight": false, "index": null, "target_index": 11, "color": null}, {"kind": "variable", "name": "leftMax", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 3, "duration_ms": 2200, "focus": null, "why": null}, {"id": "s4", "type": "decision", "title": "Compare height[left]=0 vs height[right]=1", "narration": "height[0] (0) < height[11] (1). Left is strictly smaller. We update leftMax = max(0, 0) = 0 and advance left to 1.", "dialogue": [{"character_id": "algo", "text": "height[0] is 0, height[11] is 1. Left is smaller, so left is the bottleneck.", "mood": "explaining"}, {"character_id": "bug", "text": "Why can we advance left without checking index 1 through 10?", "mood": "skeptical"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 0, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "0", "highlight": false, "index": null, "target_index": 0, "color": null}, {"kind": "pointer", "name": "right", "value": "11", "highlight": false, "index": null, "target_index": 11, "color": null}, {"kind": "variable", "name": "leftMax", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 9, "duration_ms": 2200, "focus": null, "why": {"decision": "height[left] (0) < height[right] (1)", "limiting_factor": "Left side is the shorter boundary", "invariant_proof": "Because height[right]=1 >= leftMax=0, any wall in between will be at least 0. Water capacity at index 0 is max(0, leftMax - height[0]) = 0.", "skeptical_question": "Couldn't a taller wall in the middle trap more water at index 0?", "airtight_answer": "No! The water at index 0 cannot rise above its left boundary (leftMax = 0). It spills to the left immediately."}}, {"id": "s5", "type": "step", "title": "Advance left to 1. height[1] = 1, leftMax becomes 1", "narration": "left moves to index 1. height[1] is 1 >= leftMax (0), so leftMax updates to 1. Water trapped = 0. Compare height[1]=1 vs height[11]=1.", "dialogue": [{"character_id": "algo", "text": "leftMax is now 1. Now height[left]=1 and height[right]=1 are equal, so we process right.", "mood": "explaining"}, {"character_id": "data", "text": "Wall at index 1 is height 1. It acts as our new left dam!", "mood": "neutral"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 1, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "1", "highlight": false, "index": null, "target_index": 1, "color": null}, {"kind": "pointer", "name": "right", "value": "11", "highlight": false, "index": null, "target_index": 11, "color": null}, {"kind": "variable", "name": "leftMax", "value": "1", "highlight": true, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 11, "duration_ms": 2000, "focus": null, "why": null}, {"id": "s6", "type": "step", "title": "Process right=11: rightMax becomes 1, right decrements to 10", "narration": "height[11] is 1. rightMax updates to 1. right moves to 10. height[10] = 2. Now left=1 (1), right=10 (2).", "dialogue": [{"character_id": "algo", "text": "rightMax is updated to 1. right moves to index 10 (height 2).", "mood": "explaining"}, {"character_id": "bug", "text": "Now left has height 1, right has height 2. Left is smaller again!", "mood": "thinking"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 10, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "1", "highlight": false, "index": null, "target_index": 1, "color": null}, {"kind": "pointer", "name": "right", "value": "10", "highlight": false, "index": null, "target_index": 10, "color": null}, {"kind": "variable", "name": "leftMax", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "1", "highlight": true, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 19, "duration_ms": 2000, "focus": null, "why": null}, {"id": "s7", "type": "step", "title": "Advance left to index 2 (height 0)", "narration": "height[left] (1) < height[right] (2). Left climber advances to index 2 where height is 0. leftMax is 1.", "dialogue": [{"character_id": "algo", "text": "We are at index 2 with height 0, while leftMax is 1!", "mood": "explaining"}, {"character_id": "data", "text": "I'm a dip of height 0 between walls!", "mood": "neutral"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 2, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "2", "highlight": false, "index": null, "target_index": 2, "color": null}, {"kind": "pointer", "name": "right", "value": "10", "highlight": false, "index": null, "target_index": 10, "color": null}, {"kind": "variable", "name": "leftMax", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "0", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 15, "duration_ms": 2000, "focus": null, "why": null}, {"id": "s8", "type": "decision", "title": "First Water Trapped at Index 2! (+1 unit)", "narration": "height[2] = 0 is less than leftMax = 1. Water trapped here = leftMax - height[2] = 1 - 0 = 1. totalWater becomes 1! left advances to index 3.", "dialogue": [{"character_id": "algo", "text": "Water trapped = leftMax (1) - height[2] (0) = 1 unit! Safe to finalize.", "mood": "celebrating"}, {"character_id": "bug", "text": "Wait! Right pointer is at index 10 (height 2). What if there's a height 100 at index 7? Wouldn't index 2 hold 100 water?", "mood": "skeptical"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 2, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "2", "highlight": false, "index": null, "target_index": 2, "color": null}, {"kind": "pointer", "name": "right", "value": "10", "highlight": false, "index": null, "target_index": 10, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "variable", "name": "leftMax", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "1", "highlight": true, "index": null, "target_index": null, "color": null}], "code_line": 14, "duration_ms": 2800, "focus": null, "why": {"decision": "height[2] < leftMax && leftMax <= rightMax", "limiting_factor": "The left wall (leftMax = 1) is the strict bottleneck", "invariant_proof": "Even if index 7 had a height of 1000, water at index 2 would simply spill over the left wall (height 1). Water height is bounded by min(leftMax, rightMax) = min(1, >=2) = 1.", "skeptical_question": "Couldn't a taller wall on the right increase the water at index 2?", "airtight_answer": "No! The formula is min(leftMax, rightMax). Since leftMax is already smaller, increasing the right side changes nothing: min(1, 1000) is still 1!"}}, {"id": "s9", "type": "step", "title": "left at index 3: height[3]=2, leftMax updates to 2", "narration": "left moves to index 3. height[3] = 2 >= leftMax (1), so leftMax updates to 2. Now height[3]=2 equals height[10]=2. right side is processed.", "dialogue": [{"character_id": "algo", "text": "A taller wall at index 3! leftMax is now 2. No water trapped on the wall itself.", "mood": "explaining"}, {"character_id": "data", "text": "Wall height 2 establishes a new higher boundary for future steps.", "mood": "neutral"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 3, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "3", "highlight": false, "index": null, "target_index": 3, "color": null}, {"kind": "pointer", "name": "right", "value": "10", "highlight": false, "index": null, "target_index": 10, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "variable", "name": "leftMax", "value": "2", "highlight": true, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 11, "duration_ms": 2000, "focus": null, "why": null}, {"id": "s10", "type": "step", "title": "right at 10: rightMax becomes 2, right moves to 9 (height 1)", "narration": "height[10] = 2 >= rightMax (1), so rightMax updates to 2. right decrements to index 9 (height 1).", "dialogue": [{"character_id": "algo", "text": "rightMax is now 2. Right moves to index 9 where height is 1.", "mood": "explaining"}, {"character_id": "bug", "text": "Now height[right]=1 is smaller than height[left]=2. Right is the bottleneck now!", "mood": "thinking"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 9, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "3", "highlight": false, "index": null, "target_index": 3, "color": null}, {"kind": "pointer", "name": "right", "value": "9", "highlight": false, "index": null, "target_index": 9, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "variable", "name": "leftMax", "value": "2", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "2", "highlight": true, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "1", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 19, "duration_ms": 2200, "focus": null, "why": null}, {"id": "s11", "type": "decision", "title": "Water Trapped at Index 9 from Right! (+1 unit, Total: 2)", "narration": "height[right] (1) < height[left] (2). Right side is the limiter. Water = rightMax (2) - height[9] (1) = 1. totalWater = 2. right decrements to 8.", "dialogue": [{"character_id": "algo", "text": "Symmetric logic! Since right is shorter, rightMax (2) determines the trapped water at index 9.", "mood": "confident"}, {"character_id": "bug", "text": "Beautiful! The exact same invariant works in reverse from the right boundary.", "mood": "celebrating"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 9, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "3", "highlight": false, "index": null, "target_index": 3, "color": null}, {"kind": "pointer", "name": "right", "value": "9", "highlight": false, "index": null, "target_index": 9, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "water", "name": "water_9", "value": "1", "highlight": false, "index": 9, "target_index": null, "color": null}, {"kind": "variable", "name": "leftMax", "value": "2", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "2", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "2", "highlight": true, "index": null, "target_index": null, "color": null}], "code_line": 22, "duration_ms": 2400, "focus": null, "why": {"decision": "height[right] (1) < height[left] (2)", "limiting_factor": "Right wall is shorter than left wall", "invariant_proof": "Because leftMax >= 2 >= rightMax, the left side is guaranteed to hold at least rightMax height. Water at index 9 is capped at rightMax - height[9] = 2 - 1 = 1.", "skeptical_question": "Can anything on the left leak water out?", "airtight_answer": "No, leftMax is already 2, so the left dam is tall enough. Water only spills over rightMax."}}, {"id": "s12", "type": "step", "title": "left sweeps index 4, 5, 6: Trapping +1, +2, +1 Water!", "narration": "At index 4 (height 1): traps 2 - 1 = 1 unit. At index 5 (height 0): traps 2 - 0 = 2 units! At index 6 (height 1): traps 2 - 1 = 1 unit. totalWater increases by 4 to 6!", "dialogue": [{"character_id": "algo", "text": "Notice index 5: with height 0 and leftMax 2, it holds 2 full units of water!", "mood": "explaining"}, {"character_id": "data", "text": "Pools forming at indices 4, 5, 6! Total water is now 6.", "mood": "celebrating"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 5, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "6", "highlight": false, "index": null, "target_index": 6, "color": null}, {"kind": "pointer", "name": "right", "value": "8", "highlight": false, "index": null, "target_index": 8, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "water", "name": "water_4", "value": "1", "highlight": false, "index": 4, "target_index": null, "color": null}, {"kind": "water", "name": "water_5", "value": "2", "highlight": false, "index": 5, "target_index": null, "color": null}, {"kind": "water", "name": "water_6", "value": "1", "highlight": false, "index": 6, "target_index": null, "color": null}, {"kind": "water", "name": "water_9", "value": "1", "highlight": false, "index": 9, "target_index": null, "color": null}, {"kind": "variable", "name": "leftMax", "value": "2", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "2", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "6", "highlight": true, "index": null, "target_index": null, "color": null}], "code_line": 14, "duration_ms": 2600, "focus": null, "why": null}, {"id": "s13", "type": "step", "title": "Meeting the Peak at Index 7 (height 3)", "narration": "left moves to index 7 where height is 3. leftMax updates to 3. Pointers converge at the highest peak.", "dialogue": [{"character_id": "algo", "text": "Index 7 is the global maximum (height 3). Both climbers converge here.", "mood": "explaining"}, {"character_id": "bug", "text": "Once left == right, every single cell has been accounted for!", "mood": "celebrating"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": true, "index": 7, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "7", "highlight": false, "index": null, "target_index": 7, "color": null}, {"kind": "pointer", "name": "right", "value": "7", "highlight": false, "index": null, "target_index": 7, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "water", "name": "water_4", "value": "1", "highlight": false, "index": 4, "target_index": null, "color": null}, {"kind": "water", "name": "water_5", "value": "2", "highlight": false, "index": 5, "target_index": null, "color": null}, {"kind": "water", "name": "water_6", "value": "1", "highlight": false, "index": 6, "target_index": null, "color": null}, {"kind": "water", "name": "water_9", "value": "1", "highlight": false, "index": 9, "target_index": null, "color": null}, {"kind": "variable", "name": "leftMax", "value": "3", "highlight": true, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "rightMax", "value": "2", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "6", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 8, "duration_ms": 2200, "focus": null, "why": null}, {"id": "s14", "type": "result", "title": "Execution Complete: Total Trapped Water = 6", "narration": "Loop terminates when left == right. Total trapped water is 6 units. We finalized each position in exactly one pass.", "dialogue": [{"character_id": "algo", "text": "Final answer is 6! Every decision was provably optimal in O(1) space.", "mood": "confident"}, {"character_id": "bug", "text": "The two-pointer invariant makes complete sense now: the shorter wall is always the decision-maker!", "mood": "celebrating"}], "states": [{"kind": "array", "name": "height", "value": "0,1,0,2,1,0,1,3,2,1,2,1", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "water", "name": "water_2", "value": "1", "highlight": false, "index": 2, "target_index": null, "color": null}, {"kind": "water", "name": "water_4", "value": "1", "highlight": false, "index": 4, "target_index": null, "color": null}, {"kind": "water", "name": "water_5", "value": "2", "highlight": false, "index": 5, "target_index": null, "color": null}, {"kind": "water", "name": "water_6", "value": "1", "highlight": false, "index": 6, "target_index": null, "color": null}, {"kind": "water", "name": "water_9", "value": "1", "highlight": false, "index": 9, "target_index": null, "color": null}, {"kind": "variable", "name": "totalWater", "value": "6", "highlight": true, "index": null, "target_index": null, "color": null}], "code_line": 26, "duration_ms": 2500, "focus": null, "why": null}, {"id": "s15", "type": "complexity", "title": "Complexity & Staff Invariant Summary", "narration": "Time Complexity: O(N) because each step increments left or decrements right. Space Complexity: O(1) auxiliary space as only two pointers and two max variables are maintained.", "dialogue": [{"character_id": "algo", "text": "Time: O(N) single pass. Space: O(1) constant memory. Optimal in both dimensions.", "mood": "explaining"}, {"character_id": "bug", "text": "No prefix arrays needed. That's the power of the two-pointer invariant!", "mood": "celebrating"}], "states": [{"kind": "variable", "name": "Time", "value": "O(N)", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "Space", "value": "O(1)", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "Result", "value": "6", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 26, "duration_ms": 2500, "focus": null, "why": null}]};
-
-let currentIndex = 0;
-let playTimer = null;
-let speedFactor = 1.0;
-let forceWhyMode = true;
-
-const $ = id => document.getElementById(id);
-
-// Init basic info
-$("algo-title").textContent = SPEC.title || "Algorithm Animation";
-$("algo-sub").textContent = (SPEC.algorithm || "") + (SPEC.problem ? " — " + SPEC.problem : "");
-$("badge-time").textContent = "Time: " + (SPEC.time_complexity || "O(N)");
-$("badge-space").textContent = "Space: " + (SPEC.space_complexity || "O(1)");
-
-if (SPEC.visual_metaphor) {
-  $("badge-metaphor").textContent = "🎨 " + SPEC.visual_metaphor;
-  $("badge-metaphor").style.display = "inline-flex";
-}
-
-$("intuition-text").innerHTML = "<strong>" + (SPEC.intuition || "") + "</strong>" + (SPEC.invariant ? " — <em>" + SPEC.invariant + "</em>" : "");
-
-// Populate scene dropdown
-const select = $("scene-select");
-SPEC.scenes.forEach((s, idx) => {
-  const opt = document.createElement("option");
-  opt.value = idx;
-  opt.textContent = `${idx + 1}. [${s.type.toUpperCase()}] ${s.title}`;
-  select.appendChild(opt);
+const SPEC = {"title": "Binary Search — Target 9", "algorithm": "Binary Search", "problem": "Find index of target 9 in sorted array [-1,0,3,5,9,12]", "intuition": "Halve the search space by probing the midpoint of the sorted range.", "visual_metaphor": "Detective eliminating half the rooms at each step.", "invariant": "Target is guaranteed to be within [left..right] if it exists in the array.", "time_complexity": "O(log N)", "space_complexity": "O(1)", "confidence": 1.0, "source_code": "public int BinarySearch(int[] nums, int target)\n{\n    int left = 0, right = nums.Length - 1;\n    while (left <= right)\n    {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n        if (nums[mid] < target) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}", "source_language": "csharp", "characters": [{"id": "algo", "name": "Algo", "role": "Detective / Teacher", "mood": "explaining"}, {"id": "bug", "name": "Bug", "role": "Skeptic", "mood": "skeptical"}, {"id": "data", "name": "Data", "role": "Sorted Space", "mood": "neutral"}], "scenes": [{"id": "bs_1", "type": "title", "title": "Binary Search: Target 9", "narration": "Searching for target = 9 in sorted array of 6 elements: [-1,0,3,5,9,12].", "dialogue": [{"character_id": "algo", "text": "Locating target 9. Because the array is sorted, we eliminate half the candidate elements in each step!", "mood": "confident"}, {"character_id": "bug", "text": "Let's make sure our middle index calculation doesn't overflow or miss target.", "mood": "thinking"}], "states": [{"kind": "array", "name": "nums", "value": "-1,0,3,5,9,12", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "target", "value": "9", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 1, "duration_ms": 2000, "focus": null, "why": null}, {"id": "bs_2", "type": "decision", "title": "Probe Midpoint: Index 2 (Value 3)", "narration": "Search range [0..5]. Calculate mid = 0 + (5 - 0) / 2 = 2. nums[2] = 3.", "dialogue": [{"character_id": "algo", "text": "Checking midpoint index 2 with value 3.", "mood": "explaining"}, {"character_id": "data", "text": "Target is 9. Comparing 3 vs 9.", "mood": "neutral"}], "states": [{"kind": "array", "name": "nums", "value": "-1,0,3,5,9,12", "highlight": true, "index": 2, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "0", "highlight": false, "index": null, "target_index": 0, "color": null}, {"kind": "pointer", "name": "right", "value": "5", "highlight": false, "index": null, "target_index": 5, "color": null}, {"kind": "pointer", "name": "mid", "value": "2", "highlight": false, "index": null, "target_index": 2, "color": null}, {"kind": "variable", "name": "target", "value": "9", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "nums[mid]", "value": "3", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 5, "duration_ms": 2000, "focus": null, "why": {"decision": "nums[mid] = 3 vs target = 9", "limiting_factor": "Monotonicity: all items before index 2 are <= 3, items after are >= 3", "invariant_proof": "If target is present, it MUST lie in [0..5].", "skeptical_question": "Why can we eliminate the entire half?", "airtight_answer": "Array is strictly sorted. If nums[2] < 9, no element in the discarded half can ever equal 9."}}, {"id": "bs_3", "type": "decision", "title": "Probe Midpoint: Index 4 (Value 9)", "narration": "Search range [3..5]. Calculate mid = 3 + (5 - 3) / 2 = 4. nums[4] = 9.", "dialogue": [{"character_id": "algo", "text": "Checking midpoint index 4 with value 9.", "mood": "explaining"}, {"character_id": "data", "text": "Target is 9. Comparing 9 vs 9.", "mood": "neutral"}], "states": [{"kind": "array", "name": "nums", "value": "-1,0,3,5,9,12", "highlight": true, "index": 4, "target_index": null, "color": null}, {"kind": "pointer", "name": "left", "value": "3", "highlight": false, "index": null, "target_index": 3, "color": null}, {"kind": "pointer", "name": "right", "value": "5", "highlight": false, "index": null, "target_index": 5, "color": null}, {"kind": "pointer", "name": "mid", "value": "4", "highlight": false, "index": null, "target_index": 4, "color": null}, {"kind": "variable", "name": "target", "value": "9", "highlight": false, "index": null, "target_index": null, "color": null}, {"kind": "variable", "name": "nums[mid]", "value": "9", "highlight": false, "index": null, "target_index": null, "color": null}], "code_line": 5, "duration_ms": 2000, "focus": null, "why": {"decision": "nums[mid] = 9 vs target = 9", "limiting_factor": "Monotonicity: all items before index 4 are <= 9, items after are >= 9", "invariant_proof": "If target is present, it MUST lie in [3..5].", "skeptical_question": "Why can we eliminate the entire half?", "airtight_answer": "Array is strictly sorted. If nums[4] > 9, no element in the discarded half can ever equal 9."}}, {"id": "bs_4_found", "type": "result", "title": "Target 9 Found at Index 4!", "narration": "nums[4] == 9. Search succeeds in logarithmic time O(log N).", "dialogue": [{"character_id": "algo", "text": "Match confirmed! Target 9 is at index 4.", "mood": "celebrating"}, {"character_id": "bug", "text": "Took only a few probes to search the entire array.", "mood": "celebrating"}], "states": [{"kind": "array", "name": "nums", "value": "-1,0,3,5,9,12", "highlight": true, "index": 4, "target_index": null, "color": null}, {"kind": "pointer", "name": "found", "value": "4", "highlight": false, "index": null, "target_index": 4, "color": null}, {"kind": "variable", "name": "result", "value": "4", "highlight": true, "index": null, "target_index": null, "color": null}], "code_line": 6, "duration_ms": 2000, "focus": null, "why": null}]};
+currentSpec = SPEC;
+window.addEventListener("DOMContentLoaded", () => {
+    setSpec(SPEC);
 });
-$("timeline-slider").max = Math.max(0, SPEC.scenes.length - 1);
-
-// Render Code lines if source code is provided
-if (SPEC.source_code) {
-  $("code-panel").style.display = "block";
-  $("stage-grid").classList.add("with-code");
-  $("source-lang").textContent = SPEC.source_language || "code";
-  const lines = SPEC.source_code.split("\n");
-  const codeLinesDiv = $("code-lines");
-  codeLinesDiv.innerHTML = "";
-  lines.forEach((line, idx) => {
-    const row = document.createElement("div");
-    row.className = "code-line";
-    row.id = `code-line-${idx + 1}`;
-    row.innerHTML = `<span class="line-num">${idx + 1}</span><span>${escapeHtml(line)}</span>`;
-    codeLinesDiv.appendChild(row);
-  });
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function renderScene(idx) {
-  const scene = SPEC.scenes[idx];
-  if (!scene) return;
-
-  $("timeline-slider").value = idx;
-  $("step-counter").textContent = `${idx + 1}/${SPEC.scenes.length}`;
-  $("scene-select").value = idx;
-
-  // Header type badge
-  const typeBadge = $("badge-type");
-  typeBadge.textContent = scene.type;
-  if (scene.type === 'decision') typeBadge.style.background = '#fef08a';
-  else if (scene.type === 'invariant') typeBadge.style.background = '#d9f99d';
-  else if (scene.type === 'result') typeBadge.style.background = '#bbf7d0';
-  else typeBadge.style.background = '#fae8ff';
-
-  // Narration
-  $("narration-title").textContent = scene.title;
-  $("narration-text").innerHTML = scene.narration;
-
-  // Comic dialogue
-  const comicStrip = $("comic-strip");
-  comicStrip.innerHTML = "";
-  if (scene.dialogue && scene.dialogue.length) {
-    scene.dialogue.forEach(d => {
-      let charId = "algo";
-      let text = "";
-      if (typeof d === "string") {
-        text = d;
-        if (text.toLowerCase().includes("bug") || text.includes("?")) charId = "bug";
-      } else {
-        charId = d.character_id || "algo";
-        text = d.text || "";
-      }
-      if (!text) return;
-
-      const row = document.createElement("div");
-      row.className = `dialogue-bubble-row ${charId}`;
-      const avatarIcon = charId === "bug" ? "🤔" : (charId === "data" ? "🧱" : "🧑");
-      const avatarName = charId === "bug" ? "Bug" : (charId === "data" ? "Data" : "Algo");
-
-      row.innerHTML = `
-        <div class="avatar ${charId}" title="${avatarName}">${avatarIcon}</div>
-        <div class="speech-bubble">${escapeHtml(text)}</div>
-      `;
-      comicStrip.appendChild(row);
-    });
-  }
-
-  // Visual Data Structure Canvas
-  const canvas = $("data-canvas");
-  canvas.innerHTML = "";
-
-  let arrayItem = scene.states.find(s => s.kind === "array");
-  let pointers = scene.states.filter(s => s.kind === "pointer");
-  let variables = scene.states.filter(s => s.kind === "variable");
-  let barItems = scene.states.filter(s => s.kind === "bar");
-  let waterItems = scene.states.filter(s => s.kind === "water");
-
-  // If array exists
-  if (arrayItem) {
-    const rawVals = arrayItem.value.split(",");
-    const numVals = rawVals.map(v => parseInt(v.trim(), 10) || 0);
-    const maxVal = Math.max(...numVals, 1);
-
-    // If it's a numeric bar-friendly array (e.g. Trapping Rain Water or sorting)
-    const isHeightData = numVals.some(v => v > 0);
-    if (isHeightData) {
-      const chart = document.createElement("div");
-      chart.className = "bar-chart-container";
-
-      numVals.forEach((h, j) => {
-        const col = document.createElement("div");
-        col.className = "bar-col";
-
-        // Check water at this index
-        let waterHeight = 0;
-        const wItem = waterItems.find(w => w.index === j);
-        if (wItem) {
-          waterHeight = parseInt(wItem.value, 10) || 0;
-        }
-
-        const barPx = Math.round((h / maxVal) * 80);
-        const waterPx = Math.round((waterHeight / maxVal) * 80);
-
-        if (waterPx > 0) {
-          const wBlock = document.createElement("div");
-          wBlock.className = "water-block";
-          wBlock.style.height = `${waterPx}px`;
-          wBlock.textContent = waterHeight;
-          wBlock.title = `Trapped Water: ${waterHeight}`;
-          col.appendChild(wBlock);
-        }
-
-        const hBlock = document.createElement("div");
-        hBlock.className = "height-block";
-        if (arrayItem.index === j || arrayItem.highlight && arrayItem.index === j) {
-          hBlock.classList.add("active");
-        }
-        hBlock.style.height = `${Math.max(4, barPx)}px`;
-        col.appendChild(hBlock);
-
-        chart.appendChild(col);
-      });
-      canvas.appendChild(chart);
-    }
-
-    // Array Cell Row
-    const arrayWrapper = document.createElement("div");
-    arrayWrapper.className = "array-wrapper";
-
-    rawVals.forEach((val, j) => {
-      const cellContainer = document.createElement("div");
-      cellContainer.className = "array-cell-container";
-
-      // Cell
-      const cell = document.createElement("div");
-      cell.className = "array-cell";
-      if (arrayItem.index === j || (arrayItem.highlight && arrayItem.index === j)) {
-        cell.classList.add("hot");
-      }
-
-      // Check if pointers are at this index
-      pointers.forEach(p => {
-        const pIdx = p.target_index !== undefined ? p.target_index : parseInt(p.value, 10);
-        if (pIdx === j) {
-          if (p.name.toLowerCase().includes("left")) cell.classList.add("active-left");
-          else if (p.name.toLowerCase().includes("right")) cell.classList.add("active-right");
-        }
-      });
-
-      cell.textContent = val.trim();
-
-      // Index label
-      const idxSpan = document.createElement("span");
-      idxSpan.className = "cell-index";
-      idxSpan.textContent = j;
-
-      cellContainer.appendChild(idxSpan);
-      cellContainer.appendChild(cell);
-
-      // Render Pointer Labels beneath cell
-      pointers.forEach(p => {
-        const pIdx = p.target_index !== undefined ? p.target_index : parseInt(p.value, 10);
-        if (pIdx === j) {
-          const ptr = document.createElement("div");
-          let pType = "general-pointer";
-          if (p.name.toLowerCase().includes("left")) pType = "left-pointer";
-          else if (p.name.toLowerCase().includes("right")) pType = "right-pointer";
-
-          ptr.className = `pointer-label ${pType}`;
-          ptr.innerHTML = `<span class="pointer-arrow">▲</span><span>${escapeHtml(p.name)}</span>`;
-          cellContainer.appendChild(ptr);
-        }
-      });
-
-      arrayWrapper.appendChild(cellContainer);
-    });
-
-    canvas.appendChild(arrayWrapper);
-  }
-
-  // Variables Row
-  if (variables.length) {
-    const varRow = document.createElement("div");
-    varRow.className = "variables-row";
-    variables.forEach(v => {
-      const pill = document.createElement("div");
-      pill.className = "var-pill" + (v.highlight ? " highlight" : "");
-      pill.innerHTML = `<strong>${escapeHtml(v.name)}</strong>: ${escapeHtml(v.value)}`;
-      varRow.appendChild(pill);
-    });
-    canvas.appendChild(varRow);
-  }
-
-  // "Why is this safe?" Inspector Card (The Killer Feature)
-  const whyCard = $("why-card");
-  if (scene.why) {
-    whyCard.classList.add("active");
-    $("why-decision").textContent = scene.why.decision;
-    $("why-limiting").textContent = scene.why.limiting_factor;
-    $("why-invariant").textContent = scene.why.invariant_proof;
-    $("why-q").textContent = "🤔 Bug: \"" + scene.why.skeptical_question + "\"";
-    $("why-a").textContent = "🧑 Algo: \"" + scene.why.airtight_answer + "\"";
-  } else {
-    whyCard.classList.remove("active");
-  }
-
-  // Synchronize Code Line Highlight
-  if (SPEC.source_code) {
-    document.querySelectorAll(".code-line.active").forEach(el => el.classList.remove("active"));
-    if (scene.code_line) {
-      const activeLine = document.getElementById(`code-line-${scene.code_line}`);
-      if (activeLine) {
-        activeLine.classList.add("active");
-        $("active-line-badge").textContent = `Line: ${scene.code_line}`;
-        activeLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    } else {
-      $("active-line-badge").textContent = `Line: -`;
-    }
-  }
-}
-
-function goToScene(n) {
-  currentIndex = Math.max(0, Math.min(SPEC.scenes.length - 1, n));
-  renderScene(currentIndex);
-}
-
-function next() {
-  if (currentIndex < SPEC.scenes.length - 1) {
-    goToScene(currentIndex + 1);
-  } else {
-    stopPlay();
-  }
-}
-
-function prev() {
-  if (currentIndex > 0) {
-    goToScene(currentIndex - 1);
-  }
-}
-
-function first() { goToScene(0); }
-function last() { goToScene(SPEC.scenes.length - 1); }
-
-function togglePlay() {
-  if (playTimer) stopPlay();
-  else startPlay();
-}
-
-function startPlay() {
-  $("play-btn").textContent = "⏸ Pause";
-  $("play-btn").style.background = "#fdba74";
-
-  function tick() {
-    if (currentIndex >= SPEC.scenes.length - 1) {
-      stopPlay();
-      return;
-    }
-    next();
-    const curScene = SPEC.scenes[currentIndex];
-    const dur = ((curScene && curScene.duration_ms) || 2000) / speedFactor;
-    playTimer = setTimeout(tick, dur);
-  }
-
-  const curScene = SPEC.scenes[currentIndex];
-  const dur = ((curScene && curScene.duration_ms) || 2000) / speedFactor;
-  playTimer = setTimeout(tick, dur);
-}
-
-function stopPlay() {
-  if (playTimer) {
-    clearTimeout(playTimer);
-    playTimer = null;
-  }
-  $("play-btn").textContent = "▶ Play";
-  $("play-btn").style.background = "var(--algo-color)";
-}
-
-function setSpeed(spd, btn) {
-  speedFactor = spd;
-  document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  if (playTimer) {
-    stopPlay();
-    startPlay();
-  }
-}
-
-function toggleWhyMode() {
-  const whyCard = $("why-card");
-  const btn = $("why-toggle-btn");
-  if (whyCard.style.display === "none" || !whyCard.classList.contains("active")) {
-    whyCard.style.display = "block";
-    whyCard.classList.add("active");
-    btn.classList.add("active-toggle");
-  } else {
-    whyCard.style.display = "none";
-    whyCard.classList.remove("active");
-    btn.classList.remove("active-toggle");
-  }
-}
-
-// Keyboard navigation
-window.addEventListener("keydown", e => {
-  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
-  if (e.code === "Space") { e.preventDefault(); togglePlay(); }
-  else if (e.code === "ArrowRight") { e.preventDefault(); next(); }
-  else if (e.code === "ArrowLeft") { e.preventDefault(); prev(); }
-  else if (e.code === "Home") { e.preventDefault(); first(); }
-  else if (e.code === "End") { e.preventDefault(); last(); }
-  else if (e.code === "KeyW") { e.preventDefault(); toggleWhyMode(); }
-});
-
-// Initial render
-renderScene(0);
 </script>
 </body>
 </html>
