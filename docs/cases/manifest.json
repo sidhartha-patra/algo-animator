@@ -1,0 +1,128 @@
+[
+  {
+    "id": "case_0",
+    "name": "Standard Basin",
+    "description": "Classic LeetCode test case with multiple valleys and peaks.",
+    "data": [
+      0,
+      1,
+      0,
+      2,
+      1,
+      0,
+      1,
+      3,
+      2,
+      1,
+      2,
+      1
+    ],
+    "expected": 6,
+    "file": "case_0.json",
+    "scenes": 14
+  },
+  {
+    "id": "case_1",
+    "name": "Empty Elevation Map",
+    "description": "Empty array (length 0). Invariant: no water can be trapped.",
+    "data": [],
+    "expected": 0,
+    "file": "case_1.json",
+    "scenes": 2
+  },
+  {
+    "id": "case_2",
+    "name": "Single Element",
+    "description": "Array with length 1. No opposing boundary exists.",
+    "data": [
+      4
+    ],
+    "expected": 0,
+    "file": "case_2.json",
+    "scenes": 2
+  },
+  {
+    "id": "case_3",
+    "name": "Two Elements",
+    "description": "Array with length 2. Cannot form a container between two walls.",
+    "data": [
+      3,
+      1
+    ],
+    "expected": 0,
+    "file": "case_3.json",
+    "scenes": 2
+  },
+  {
+    "id": "case_4",
+    "name": "All Equal Heights",
+    "description": "Flat terrain with identical heights [2, 2, 2, 2]. Water runs off.",
+    "data": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "expected": 0,
+    "file": "case_4.json",
+    "scenes": 6
+  },
+  {
+    "id": "case_5",
+    "name": "Strictly Decreasing",
+    "description": "Descending stair [5, 4, 3, 2, 1]. Water spills to the right.",
+    "data": [
+      5,
+      4,
+      3,
+      2,
+      1
+    ],
+    "expected": 0,
+    "file": "case_5.json",
+    "scenes": 7
+  },
+  {
+    "id": "case_6",
+    "name": "Strictly Increasing",
+    "description": "Ascending stair [1, 2, 3, 4, 5]. Water spills to the left.",
+    "data": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "expected": 0,
+    "file": "case_6.json",
+    "scenes": 7
+  },
+  {
+    "id": "case_7",
+    "name": "Deep Single Basin",
+    "description": "Two high pillars with low valley [4, 0, 0, 4]. Maximum trapped capacity.",
+    "data": [
+      4,
+      0,
+      0,
+      4
+    ],
+    "expected": 8,
+    "file": "case_7.json",
+    "scenes": 6
+  },
+  {
+    "id": "case_8",
+    "name": "Asymmetric Peak",
+    "description": "One towering pillar surrounded by lower bars [10, 1, 2, 1].",
+    "data": [
+      10,
+      1,
+      2,
+      1
+    ],
+    "expected": 1,
+    "file": "case_8.json",
+    "scenes": 6
+  }
+]

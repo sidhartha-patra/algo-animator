@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algo Animator — Comic Algorithm Explainer</title>
+<style>
+:root {
+  --bg: #f8f6f0;
+  --panel-bg: #ffffff;
+  --ink: #18181b;
+  --ink-muted: #52525b;
+  --border: 2.5px solid #18181b;
+  --shadow: 4px 4px 0 #18181b;
+  --shadow-sm: 2px 2px 0 #18181b;
+  --shadow-hover: 6px 6px 0 #18181b;
+  --algo-color: #fde047;
+  --bug-color: #67e8f9;
+  --data-color: #86efac;
+  --accent-coral: #fb7185;
+  --accent-teal: #2dd4bf;
+  --accent-blue: #38bdf8;
+  --why-bg: #fef9c3;
+  --why-border: #eab308;
+  --code-bg: #1e1e24;
+  --code-fg: #f4f4f5;
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  padding: 24px 16px;
+}
+
+#app {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+/* Header */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+h1 {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.sub {
+  color: var(--ink-muted);
+  font-size: 15px;
+  font-weight: 500;
+}
+.badge-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  background: #f4f4f5;
+  box-shadow: var(--shadow-sm);
+}
+.badge.time { background: #dcfce7; color: #166534; }
+.badge.space { background: #e0f2fe; color: #075985; }
+.badge.metaphor { background: #fef3c7; color: #92400e; }
+.badge.type { background: #fae8ff; color: #86198f; text-transform: uppercase; font-size: 11px; }
+
+/* Intuition Box */
+.intuition-card {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border: var(--border);
+  border-radius: 12px;
+  background: #fffbeb;
+  font-size: 14.5px;
+}
+
+/* Main Split Stage */
+.stage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 980px) {
+  .stage-grid.with-code {
+    grid-template-columns: 1fr 420px;
+  }
+}
+
+/* Comic dialogue bar */
+#comic-strip {
+  min-height: 125px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.dialogue-bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  animation: popIn 0.25s ease-out;
+}
+.dialogue-bubble-row.algo {
+  align-self: flex-start;
+}
+.dialogue-bubble-row.bug {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.dialogue-bubble-row.data {
+  align-self: center;
+}
+.avatar {
+  width: 48px;
+  height: 48px;
+  border: var(--border);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.avatar.algo { background: var(--algo-color); }
+.avatar.bug { background: var(--bug-color); }
+.avatar.data { background: var(--data-color); border-radius: 12px; }
+
+.speech-bubble {
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 16px;
+  padding: 10px 16px;
+  max-width: 480px;
+  font-size: 14.5px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.dialogue-bubble-row.algo .speech-bubble::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  bottom: 12px;
+  border-width: 6px 10px 6px 0;
+  border-style: solid;
+  border-color: transparent #18181b transparent transparent;
+}
+.dialogue-bubble-row.bug .speech-bubble::before {
+  content: "";
+  position: absolute;
+  right: -10px;
+  bottom: 12px;
+  border-width: 6px 0 6px 10px;
+  border-style: solid;
+  border-color: transparent transparent transparent #18181b;
+}
+
+/* Visualization Canvas */
+#data-canvas {
+  min-height: 220px;
+  border: var(--border);
+  border-radius: 14px;
+  background: #fafaf9;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Bar / Height representation overlay */
+.bar-chart-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  width: 100%;
+  padding-bottom: 4px;
+}
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  width: 54px;
+  position: relative;
+}
+.water-block {
+  width: 100%;
+  background: rgba(56, 189, 248, 0.7);
+  border: 2px dashed #0284c7;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0369a1;
+}
+.height-block {
+  width: 100%;
+  background: #64748b;
+  border: var(--border);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.height-block.active {
+  background: var(--algo-color);
+}
+.height-block.finalized {
+  background: #475569;
+}
+
+/* Array Row */
+.array-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  padding: 26px 0 38px 0;
+}
+.array-cell-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.cell-index {
+  position: absolute;
+  top: -22px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-muted);
+}
+.array-cell {
+  width: 54px;
+  height: 54px;
+  border: var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.array-cell.hot {
+  background: var(--algo-color);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+}
+.array-cell.active-left {
+  background: #ffe4e6;
+  border-color: var(--accent-coral);
+}
+.array-cell.active-right {
+  background: #ccfbf1;
+  border-color: var(--accent-teal);
+}
+.array-cell.finalized {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* Dynamic Pointers */
+.pointer-label {
+  position: absolute;
+  bottom: -32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  animation: bounce 0.4s ease-out;
+}
+.pointer-label.left-pointer { color: #e11d48; }
+.pointer-label.right-pointer { color: #0d9488; }
+.pointer-label.general-pointer { color: #4338ca; }
+.pointer-arrow {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Variables & State Strip */
+.variables-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.var-pill {
+  padding: 6px 14px;
+  border: var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+.var-pill.highlight {
+  background: #bbf7d0;
+  border-color: #15803d;
+  transform: scale(1.05);
+}
+
+/* Narration & Scene info */
+#narration-box {
+  margin-top: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  min-height: 56px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+}
+#narration-title {
+  font-weight: 800;
+  font-size: 17px;
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+/* The Killer Feature: "Why is this safe?" */
+#why-card {
+  margin-top: 14px;
+  border: 2.5px solid var(--why-border);
+  border-radius: 12px;
+  background: var(--why-bg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+#why-card.active {
+  display: block;
+}
+.why-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #854d0e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .why-grid { grid-template-columns: 1fr 1fr; }
+}
+.why-step-box {
+  background: #ffffff;
+  border: 1.5px solid #ca8a04;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+}
+.why-step-box b {
+  color: #a16207;
+  display: block;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.why-dialogue {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border: 1.5px solid #ca8a04;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13.5px;
+}
+.why-q {
+  color: #0284c7;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.why-a {
+  color: #15803d;
+  font-weight: 600;
+}
+
+/* Code Panel */
+#code-panel {
+  display: none;
+  background: var(--code-bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  color: var(--code-fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  max-height: 640px;
+  overflow-y: auto;
+}
+.code-panel-header {
+  font-weight: 800;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 6px;
+}
+.code-line {
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: flex;
+  gap: 12px;
+  white-space: pre;
+}
+.line-num {
+  color: #64748b;
+  width: 24px;
+  text-align: right;
+  user-select: none;
+}
+.code-line.active {
+  background: #3b82f6;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+.code-line.active .line-num {
+  color: #ffffff;
+}
+
+/* Control Bar */
+.control-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.btn {
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+.btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+.btn.primary {
+  background: var(--algo-color);
+}
+.btn.active-toggle {
+  background: #fed7aa;
+  border-color: #ea580c;
+}
+input[type=range] {
+  flex: 1;
+  min-width: 140px;
+  accent-color: #18181b;
+  cursor: pointer;
+}
+.scene-select {
+  border: var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-weight: 700;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.speed-group {
+  display: flex;
+  border: var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.speed-btn {
+  border: none;
+  border-right: 1.5px solid #18181b;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #fff;
+  cursor: pointer;
+}
+.speed-btn:last-child { border-right: none; }
+.speed-btn.active { background: #18181b; color: #fff; }
+
+.shortcut-hint {
+  font-size: 12px;
+  color: var(--ink-muted);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+kbd {
+  background: #e4e4e7;
+  border: 1px solid #a1a1aa;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Header Card -->
+  <div class="panel">
+    <div class="header-row">
+      <div>
+        <h1 id="algo-title">Algo Animator</h1>
+        <div class="sub" id="algo-sub">Algorithm Visualizer</div>
+      </div>
+      <div class="badge-group" id="badge-group">
+        <span class="badge time" id="badge-time">Time: O(N)</span>
+        <span class="badge space" id="badge-space">Space: O(1)</span>
+        <span class="badge metaphor" id="badge-metaphor" style="display:none;"></span>
+        <span class="badge type" id="badge-type">INIT</span>
+      </div>
+    </div>
+    <div class="intuition-card" id="intuition-card">
+      <b>💡 Key Insight / Invariant:</b> <span id="intuition-text"></span>
+    </div>
+  </div>
+
+  <!-- Stage Grid: Animation + Code Panel -->
+  <div class="stage-grid" id="stage-grid">
+    <!-- Main Visual Stage -->
+    <div class="panel" style="overflow: hidden;">
+      <!-- Comic dialogue row -->
+      <div id="comic-strip"></div>
+
+      <!-- Data structure visual canvas -->
+      <div id="data-canvas"></div>
+
+      <!-- Narration Box -->
+      <div id="narration-box">
+        <div id="narration-title">Scene</div>
+        <div id="narration-text">Explanation</div>
+      </div>
+
+      <!-- "Why is this safe?" Card (The Killer Feature) -->
+      <div id="why-card">
+        <div class="why-header">
+          <span>🛡️ Why is this decision safe? (Staff Invariant)</span>
+          <span style="font-size:12px; font-weight:normal; text-transform:none;">Press <b>W</b> to toggle</span>
+        </div>
+        <div class="why-grid">
+          <div class="why-step-box">
+            <b>1. Decision Condition</b>
+            <span id="why-decision"></span>
+          </div>
+          <div class="why-step-box">
+            <b>2. Limiting Bottleneck</b>
+            <span id="why-limiting"></span>
+          </div>
+          <div class="why-step-box" style="grid-column: 1 / -1;">
+            <b>3. Invariant Guarantee</b>
+            <span id="why-invariant"></span>
+          </div>
+          <div class="why-dialogue">
+            <div class="why-q" id="why-q">🤔 Bug: "Couldn't a taller wall change this?"</div>
+            <div class="why-a" id="why-a">🧑 Algo: "No. The right side is already taller..."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional Code Panel -->
+    <div id="code-panel">
+      <div class="code-panel-header">
+        <span>Source Code (<span id="source-lang">C#</span>)</span>
+        <span id="active-line-badge">Line: -</span>
+      </div>
+      <div id="code-lines"></div>
+    </div>
+  </div>
+
+  <!-- Interactive Controls -->
+  <div class="panel">
+    <div class="control-bar">
+      <button class="btn" onclick="first()" title="Home">⏮</button>
+      <button class="btn" onclick="prev()" title="Left Arrow">◀</button>
+      <button class="btn primary" onclick="togglePlay()" id="play-btn">▶ Play</button>
+      <button class="btn" onclick="next()" title="Right Arrow">▶</button>
+      <button class="btn" onclick="last()" title="End">⏭</button>
+
+      <input type="range" id="timeline-slider" min="0" max="0" value="0" oninput="goToScene(+this.value)">
+
+      <span style="font-weight: 800; font-family: monospace; min-width: 60px;" id="step-counter">1/1</span>
+
+      <select class="scene-select" id="scene-select" onchange="goToScene(+this.value)"></select>
+
+      <div class="speed-group">
+        <button class="speed-btn" onclick="setSpeed(0.5, this)">0.5x</button>
+        <button class="speed-btn active" onclick="setSpeed(1, this)">1x</button>
+        <button class="speed-btn" onclick="setSpeed(1.5, this)">1.5x</button>
+        <button class="speed-btn" onclick="setSpeed(2, this)">2x</button>
+      </div>
+
+      <button class="btn" id="why-toggle-btn" onclick="toggleWhyMode()">💡 Why Mode</button>
+    </div>
+    <div class="shortcut-hint">
+      <span>Shortcuts: <kbd>Space</kbd> Play/Pause</span>
+      <span><kbd>←</kbd> <kbd>→</kbd> Step Back/Fwd</span>
+      <span><kbd>Home</kbd> <kbd>End</kbd> First/Last</span>
+      <span><kbd>W</kbd> Toggle "Why is this safe?"</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const SPEC = __SPEC__;
+
+let currentIndex = 0;
+let playTimer = null;
+let speedFactor = 1.0;
+let forceWhyMode = true;
+
+const $ = id => document.getElementById(id);
+
+// Init basic info
+$("algo-title").textContent = SPEC.title || "Algorithm Animation";
+$("algo-sub").textContent = (SPEC.algorithm || "") + (SPEC.problem ? " — " + SPEC.problem : "");
+$("badge-time").textContent = "Time: " + (SPEC.time_complexity || "O(N)");
+$("badge-space").textContent = "Space: " + (SPEC.space_complexity || "O(1)");
+
+if (SPEC.visual_metaphor) {
+  $("badge-metaphor").textContent = "🎨 " + SPEC.visual_metaphor;
+  $("badge-metaphor").style.display = "inline-flex";
+}
+
+$("intuition-text").innerHTML = "<strong>" + (SPEC.intuition || "") + "</strong>" + (SPEC.invariant ? " — <em>" + SPEC.invariant + "</em>" : "");
+
+// Populate scene dropdown
+const select = $("scene-select");
+SPEC.scenes.forEach((s, idx) => {
+  const opt = document.createElement("option");
+  opt.value = idx;
+  opt.textContent = `${idx + 1}. [${s.type.toUpperCase()}] ${s.title}`;
+  select.appendChild(opt);
+});
+$("timeline-slider").max = Math.max(0, SPEC.scenes.length - 1);
+
+// Render Code lines if source code is provided
+if (SPEC.source_code) {
+  $("code-panel").style.display = "block";
+  $("stage-grid").classList.add("with-code");
+  $("source-lang").textContent = SPEC.source_language || "code";
+  const lines = SPEC.source_code.split("\n");
+  const codeLinesDiv = $("code-lines");
+  codeLinesDiv.innerHTML = "";
+  lines.forEach((line, idx) => {
+    const row = document.createElement("div");
+    row.className = "code-line";
+    row.id = `code-line-${idx + 1}`;
+    row.innerHTML = `<span class="line-num">${idx + 1}</span><span>${escapeHtml(line)}</span>`;
+    codeLinesDiv.appendChild(row);
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function renderScene(idx) {
+  const scene = SPEC.scenes[idx];
+  if (!scene) return;
+
+  $("timeline-slider").value = idx;
+  $("step-counter").textContent = `${idx + 1}/${SPEC.scenes.length}`;
+  $("scene-select").value = idx;
+
+  // Header type badge
+  const typeBadge = $("badge-type");
+  typeBadge.textContent = scene.type;
+  if (scene.type === 'decision') typeBadge.style.background = '#fef08a';
+  else if (scene.type === 'invariant') typeBadge.style.background = '#d9f99d';
+  else if (scene.type === 'result') typeBadge.style.background = '#bbf7d0';
+  else typeBadge.style.background = '#fae8ff';
+
+  // Narration
+  $("narration-title").textContent = scene.title;
+  $("narration-text").innerHTML = scene.narration;
+
+  // Comic dialogue
+  const comicStrip = $("comic-strip");
+  comicStrip.innerHTML = "";
+  if (scene.dialogue && scene.dialogue.length) {
+    scene.dialogue.forEach(d => {
+      let charId = "algo";
+      let text = "";
+      if (typeof d === "string") {
+        text = d;
+        if (text.toLowerCase().includes("bug") || text.includes("?")) charId = "bug";
+      } else {
+        charId = d.character_id || "algo";
+        text = d.text || "";
+      }
+      if (!text) return;
+
+      const row = document.createElement("div");
+      row.className = `dialogue-bubble-row ${charId}`;
+      const avatarIcon = charId === "bug" ? "🤔" : (charId === "data" ? "🧱" : "🧑");
+      const avatarName = charId === "bug" ? "Bug" : (charId === "data" ? "Data" : "Algo");
+
+      row.innerHTML = `
+        <div class="avatar ${charId}" title="${avatarName}">${avatarIcon}</div>
+        <div class="speech-bubble">${escapeHtml(text)}</div>
+      `;
+      comicStrip.appendChild(row);
+    });
+  }
+
+  // Visual Data Structure Canvas
+  const canvas = $("data-canvas");
+  canvas.innerHTML = "";
+
+  let arrayItem = scene.states.find(s => s.kind === "array");
+  let pointers = scene.states.filter(s => s.kind === "pointer");
+  let variables = scene.states.filter(s => s.kind === "variable");
+  let barItems = scene.states.filter(s => s.kind === "bar");
+  let waterItems = scene.states.filter(s => s.kind === "water");
+
+  // If array exists
+  if (arrayItem) {
+    const rawVals = arrayItem.value.split(",");
+    const numVals = rawVals.map(v => parseInt(v.trim(), 10) || 0);
+    const maxVal = Math.max(...numVals, 1);
+
+    // If it's a numeric bar-friendly array (e.g. Trapping Rain Water or sorting)
+    const isHeightData = numVals.some(v => v > 0);
+    if (isHeightData) {
+      const chart = document.createElement("div");
+      chart.className = "bar-chart-container";
+
+      numVals.forEach((h, j) => {
+        const col = document.createElement("div");
+        col.className = "bar-col";
+
+        // Check water at this index
+        let waterHeight = 0;
+        const wItem = waterItems.find(w => w.index === j);
+        if (wItem) {
+          waterHeight = parseInt(wItem.value, 10) || 0;
+        }
+
+        const barPx = Math.round((h / maxVal) * 80);
+        const waterPx = Math.round((waterHeight / maxVal) * 80);
+
+        if (waterPx > 0) {
+          const wBlock = document.createElement("div");
+          wBlock.className = "water-block";
+          wBlock.style.height = `${waterPx}px`;
+          wBlock.textContent = waterHeight;
+          wBlock.title = `Trapped Water: ${waterHeight}`;
+          col.appendChild(wBlock);
+        }
+
+        const hBlock = document.createElement("div");
+        hBlock.className = "height-block";
+        if (arrayItem.index === j || arrayItem.highlight && arrayItem.index === j) {
+          hBlock.classList.add("active");
+        }
+        hBlock.style.height = `${Math.max(4, barPx)}px`;
+        col.appendChild(hBlock);
+
+        chart.appendChild(col);
+      });
+      canvas.appendChild(chart);
+    }
+
+    // Array Cell Row
+    const arrayWrapper = document.createElement("div");
+    arrayWrapper.className = "array-wrapper";
+
+    rawVals.forEach((val, j) => {
+      const cellContainer = document.createElement("div");
+      cellContainer.className = "array-cell-container";
+
+      // Cell
+      const cell = document.createElement("div");
+      cell.className = "array-cell";
+      if (arrayItem.index === j || (arrayItem.highlight && arrayItem.index === j)) {
+        cell.classList.add("hot");
+      }
+
+      // Check if pointers are at this index
+      pointers.forEach(p => {
+        const pIdx = p.target_index !== undefined ? p.target_index : parseInt(p.value, 10);
+        if (pIdx === j) {
+          if (p.name.toLowerCase().includes("left")) cell.classList.add("active-left");
+          else if (p.name.toLowerCase().includes("right")) cell.classList.add("active-right");
+        }
+      });
+
+      cell.textContent = val.trim();
+
+      // Index label
+      const idxSpan = document.createElement("span");
+      idxSpan.className = "cell-index";
+      idxSpan.textContent = j;
+
+      cellContainer.appendChild(idxSpan);
+      cellContainer.appendChild(cell);
+
+      // Render Pointer Labels beneath cell
+      pointers.forEach(p => {
+        const pIdx = p.target_index !== undefined ? p.target_index : parseInt(p.value, 10);
+        if (pIdx === j) {
+          const ptr = document.createElement("div");
+          let pType = "general-pointer";
+          if (p.name.toLowerCase().includes("left")) pType = "left-pointer";
+          else if (p.name.toLowerCase().includes("right")) pType = "right-pointer";
+
+          ptr.className = `pointer-label ${pType}`;
+          ptr.innerHTML = `<span class="pointer-arrow">▲</span><span>${escapeHtml(p.name)}</span>`;
+          cellContainer.appendChild(ptr);
+        }
+      });
+
+      arrayWrapper.appendChild(cellContainer);
+    });
+
+    canvas.appendChild(arrayWrapper);
+  }
+
+  // Variables Row
+  if (variables.length) {
+    const varRow = document.createElement("div");
+    varRow.className = "variables-row";
+    variables.forEach(v => {
+      const pill = document.createElement("div");
+      pill.className = "var-pill" + (v.highlight ? " highlight" : "");
+      pill.innerHTML = `<strong>${escapeHtml(v.name)}</strong>: ${escapeHtml(v.value)}`;
+      varRow.appendChild(pill);
+    });
+    canvas.appendChild(varRow);
+  }
+
+  // "Why is this safe?" Inspector Card (The Killer Feature)
+  const whyCard = $("why-card");
+  if (scene.why) {
+    whyCard.classList.add("active");
+    $("why-decision").textContent = scene.why.decision;
+    $("why-limiting").textContent = scene.why.limiting_factor;
+    $("why-invariant").textContent = scene.why.invariant_proof;
+    $("why-q").textContent = "🤔 Bug: \"" + scene.why.skeptical_question + "\"";
+    $("why-a").textContent = "🧑 Algo: \"" + scene.why.airtight_answer + "\"";
+  } else {
+    whyCard.classList.remove("active");
+  }
+
+  // Synchronize Code Line Highlight
+  if (SPEC.source_code) {
+    document.querySelectorAll(".code-line.active").forEach(el => el.classList.remove("active"));
+    if (scene.code_line) {
+      const activeLine = document.getElementById(`code-line-${scene.code_line}`);
+      if (activeLine) {
+        activeLine.classList.add("active");
+        $("active-line-badge").textContent = `Line: ${scene.code_line}`;
+        activeLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      $("active-line-badge").textContent = `Line: -`;
+    }
+  }
+}
+
+function goToScene(n) {
+  currentIndex = Math.max(0, Math.min(SPEC.scenes.length - 1, n));
+  renderScene(currentIndex);
+}
+
+function next() {
+  if (currentIndex < SPEC.scenes.length - 1) {
+    goToScene(currentIndex + 1);
+  } else {
+    stopPlay();
+  }
+}
+
+function prev() {
+  if (currentIndex > 0) {
+    goToScene(currentIndex - 1);
+  }
+}
+
+function first() { goToScene(0); }
+function last() { goToScene(SPEC.scenes.length - 1); }
+
+function togglePlay() {
+  if (playTimer) stopPlay();
+  else startPlay();
+}
+
+function startPlay() {
+  $("play-btn").textContent = "⏸ Pause";
+  $("play-btn").style.background = "#fdba74";
+
+  function tick() {
+    if (currentIndex >= SPEC.scenes.length - 1) {
+      stopPlay();
+      return;
+    }
+    next();
+    const curScene = SPEC.scenes[currentIndex];
+    const dur = ((curScene && curScene.duration_ms) || 2000) / speedFactor;
+    playTimer = setTimeout(tick, dur);
+  }
+
+  const curScene = SPEC.scenes[currentIndex];
+  const dur = ((curScene && curScene.duration_ms) || 2000) / speedFactor;
+  playTimer = setTimeout(tick, dur);
+}
+
+function stopPlay() {
+  if (playTimer) {
+    clearTimeout(playTimer);
+    playTimer = null;
+  }
+  $("play-btn").textContent = "▶ Play";
+  $("play-btn").style.background = "var(--algo-color)";
+}
+
+function setSpeed(spd, btn) {
+  speedFactor = spd;
+  document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  if (playTimer) {
+    stopPlay();
+    startPlay();
+  }
+}
+
+function toggleWhyMode() {
+  const whyCard = $("why-card");
+  const btn = $("why-toggle-btn");
+  if (whyCard.style.display === "none" || !whyCard.classList.contains("active")) {
+    whyCard.style.display = "block";
+    whyCard.classList.add("active");
+    btn.classList.add("active-toggle");
+  } else {
+    whyCard.style.display = "none";
+    whyCard.classList.remove("active");
+    btn.classList.remove("active-toggle");
+  }
+}
+
+// Keyboard navigation
+window.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+  else if (e.code === "ArrowRight") { e.preventDefault(); next(); }
+  else if (e.code === "ArrowLeft") { e.preventDefault(); prev(); }
+  else if (e.code === "Home") { e.preventDefault(); first(); }
+  else if (e.code === "End") { e.preventDefault(); last(); }
+  else if (e.code === "KeyW") { e.preventDefault(); toggleWhyMode(); }
+});
+
+// Initial render
+renderScene(0);
+</script>
+</body>
+</html>

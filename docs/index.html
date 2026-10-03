@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algo Animator — Interactive Comic Algorithm Visualizer & Invariant Simulator</title>
+<style>
+:root {
+  --bg: #f8f6f0;
+  --panel-bg: #ffffff;
+  --ink: #18181b;
+  --ink-muted: #52525b;
+  --border: 2.5px solid #18181b;
+  --shadow: 4px 4px 0 #18181b;
+  --shadow-sm: 2px 2px 0 #18181b;
+  --algo-color: #fde047;
+  --bug-color: #67e8f9;
+  --data-color: #86efac;
+  --accent-coral: #fb7185;
+  --accent-teal: #2dd4bf;
+  --why-bg: #fef9c3;
+  --why-border: #eab308;
+  --code-bg: #1e1e24;
+  --code-fg: #f4f4f5;
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  padding: 20px 16px;
+}
+
+#app {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+/* Nav header */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 2px dashed #d4d4d8;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.brand-icon {
+  font-size: 30px;
+  background: var(--algo-color);
+  border: var(--border);
+  border-radius: 12px;
+  padding: 4px 8px;
+  box-shadow: var(--shadow-sm);
+}
+.brand-name {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.nav-links {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.nav-btn {
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.nav-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+.tunnel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border: var(--border);
+  border-radius: 999px;
+  background: #f4f4f5;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a1a1aa;
+}
+.status-dot.active { background: #22c55e; }
+
+/* Test Cases Ribbon */
+.cases-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cases-title {
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  letter-spacing: 0.5px;
+}
+.cases-ribbon {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.case-pill {
+  padding: 7px 14px;
+  border: var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+.case-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.case-pill.active {
+  background: var(--algo-color);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+/* Header Info */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+h1 { margin: 0 0 4px 0; font-size: 26px; font-weight: 900; }
+.sub { color: var(--ink-muted); font-size: 14.5px; font-weight: 500; }
+.badge-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: var(--border);
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  background: #f4f4f5;
+  box-shadow: var(--shadow-sm);
+}
+.badge.time { background: #dcfce7; color: #166534; }
+.badge.space { background: #e0f2fe; color: #075985; }
+.badge.metaphor { background: #fef3c7; color: #92400e; }
+.badge.type { background: #fae8ff; color: #86198f; text-transform: uppercase; font-size: 11px; }
+
+.intuition-card {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: var(--border);
+  border-radius: 12px;
+  background: #fffbeb;
+  font-size: 14px;
+}
+
+/* Main Split Stage */
+.stage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 980px) {
+  .stage-grid.with-code { grid-template-columns: 1fr 420px; }
+}
+
+/* Comic strip */
+#comic-strip {
+  min-height: 120px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.dialogue-bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  animation: popIn 0.25s ease-out;
+}
+.dialogue-bubble-row.algo { align-self: flex-start; }
+.dialogue-bubble-row.bug { align-self: flex-end; flex-direction: row-reverse; }
+.dialogue-bubble-row.data { align-self: center; }
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border: var(--border);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.avatar.algo { background: var(--algo-color); }
+.avatar.bug { background: var(--bug-color); }
+.avatar.data { background: var(--data-color); border-radius: 12px; }
+
+.speech-bubble {
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 16px;
+  padding: 9px 15px;
+  max-width: 480px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.dialogue-bubble-row.algo .speech-bubble::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  bottom: 12px;
+  border-width: 6px 10px 6px 0;
+  border-style: solid;
+  border-color: transparent #18181b transparent transparent;
+}
+.dialogue-bubble-row.bug .speech-bubble::before {
+  content: "";
+  position: absolute;
+  right: -10px;
+  bottom: 12px;
+  border-width: 6px 0 6px 10px;
+  border-style: solid;
+  border-color: transparent transparent transparent #18181b;
+}
+
+/* Canvas */
+#data-canvas {
+  min-height: 220px;
+  border: var(--border);
+  border-radius: 14px;
+  background: #fafaf9;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto;
+}
+
+/* Bar Chart & Water */
+.bar-chart-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  width: 100%;
+}
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  width: 50px;
+}
+.water-block {
+  width: 100%;
+  background: rgba(56, 189, 248, 0.7);
+  border: 2px dashed #0284c7;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0369a1;
+}
+.height-block {
+  width: 100%;
+  background: #64748b;
+  border: var(--border);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s ease;
+}
+.height-block.active { background: var(--algo-color); }
+
+/* Array Row */
+.array-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  padding: 24px 0 36px 0;
+}
+.array-cell-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.cell-index {
+  position: absolute;
+  top: -22px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-muted);
+}
+.array-cell {
+  width: 50px;
+  height: 50px;
+  border: var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.array-cell.hot {
+  background: var(--algo-color);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+.array-cell.active-left { background: #ffe4e6; border-color: var(--accent-coral); }
+.array-cell.active-right { background: #ccfbf1; border-color: var(--accent-teal); }
+
+.pointer-label {
+  position: absolute;
+  bottom: -30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pointer-label.left-pointer { color: #e11d48; }
+.pointer-label.right-pointer { color: #0d9488; }
+.pointer-label.general-pointer { color: #4338ca; }
+
+/* Variables */
+.variables-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.var-pill {
+  padding: 5px 12px;
+  border: var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: monospace;
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+.var-pill.highlight { background: #bbf7d0; border-color: #15803d; }
+
+/* Narration */
+#narration-box {
+  margin-top: 14px;
+  font-size: 15px;
+  min-height: 52px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+}
+#narration-title { font-weight: 800; font-size: 16px; margin-bottom: 3px; color: #0f172a; }
+
+/* "Why is this safe?" */
+#why-card {
+  margin-top: 14px;
+  border: 2.5px solid var(--why-border);
+  border-radius: 12px;
+  background: var(--why-bg);
+  box-shadow: var(--shadow-sm);
+  padding: 14px;
+  display: none;
+}
+#why-card.active { display: block; }
+.why-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #854d0e;
+  text-transform: uppercase;
+}
+.why-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 640px) { .why-grid { grid-template-columns: 1fr 1fr; } }
+.why-step-box {
+  background: #ffffff;
+  border: 1.5px solid #ca8a04;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.why-step-box b { color: #a16207; display: block; font-size: 11px; text-transform: uppercase; }
+.why-dialogue {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border: 1.5px solid #ca8a04;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.why-q { color: #0284c7; font-weight: 700; margin-bottom: 4px; }
+.why-a { color: #15803d; font-weight: 600; }
+
+/* Code panel */
+#code-panel {
+  display: none;
+  background: var(--code-bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  color: var(--code-fg);
+  font-family: monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  max-height: 600px;
+  overflow-y: auto;
+}
+.code-panel-header {
+  font-weight: 800;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 4px;
+}
+.code-line { padding: 2px 6px; border-radius: 4px; display: flex; gap: 10px; white-space: pre; }
+.line-num { color: #64748b; width: 22px; text-align: right; user-select: none; }
+.code-line.active { background: #3b82f6; color: #ffffff; font-weight: 800; }
+
+/* Controls */
+.control-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.btn {
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 7px 14px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: var(--shadow); }
+.btn.primary { background: var(--algo-color); }
+input[type=range] { flex: 1; min-width: 140px; accent-color: #18181b; }
+.scene-select { border: var(--border); border-radius: 8px; padding: 6px 10px; font-weight: 700; background: #fff; font-size: 12.5px; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  place-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.modal-overlay.open { display: grid; }
+.modal {
+  background: #ffffff;
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 580px;
+  width: 100%;
+  padding: 24px;
+}
+.modal-title { font-size: 20px; font-weight: 900; margin: 0 0 12px 0; }
+.form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 12.5px; font-weight: 800; text-transform: uppercase; }
+.form-input { border: var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-family: monospace; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Nav Bar -->
+  <div class="panel" style="padding: 14px 20px;">
+    <div class="nav-row">
+      <a href="https://github.com/sidhartha-patra/algo-animator" class="brand" target="_blank">
+        <span class="brand-icon">🎬</span>
+        <span class="brand-name">Algo Animator</span>
+      </a>
+      <div class="nav-links">
+        <div class="tunnel-status" id="tunnel-badge">
+          <span class="status-dot" id="tunnel-dot"></span>
+          <span id="tunnel-text">Local / Static</span>
+        </div>
+        <button class="nav-btn" onclick="openTunnelModal()">🔌 Dev Tunnel</button>
+        <button class="nav-btn" onclick="openCustomModal()">⚡ Custom Input</button>
+        <a href="https://github.com/sidhartha-patra/algo-animator" target="_blank" class="nav-btn">⭐ GitHub Repo</a>
+      </div>
+    </div>
+
+    <!-- Corner Cases Selector Ribbon -->
+    <div class="cases-section">
+      <div class="cases-title">🧪 Corner-Case Test Suites (Two-Pointer Invariant Verification)</div>
+      <div class="cases-ribbon" id="cases-ribbon">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Card -->
+  <div class="panel">
+    <div class="header-row">
+      <div>
+        <h1 id="algo-title">Trapping Rain Water</h1>
+        <div class="sub" id="algo-sub">Two Pointers — Elevation Basin Invariant</div>
+      </div>
+      <div class="badge-group">
+        <span class="badge time" id="badge-time">Time: O(N)</span>
+        <span class="badge space" id="badge-space">Space: O(1)</span>
+        <span class="badge metaphor" id="badge-metaphor">🎨 Climbers measuring walls</span>
+        <span class="badge type" id="badge-type">STEP</span>
+      </div>
+    </div>
+    <div class="intuition-card" id="intuition-card">
+      <b>💡 Key Insight / Invariant:</b> <span id="intuition-text"></span>
+    </div>
+  </div>
+
+  <!-- Main Stage & Code Inspector -->
+  <div class="stage-grid with-code" id="stage-grid">
+    <div class="panel" style="overflow: hidden;">
+      <div id="comic-strip"></div>
+      <div id="data-canvas"></div>
+      <div id="narration-box">
+        <div id="narration-title">Scene</div>
+        <div id="narration-text">Explanation</div>
+      </div>
+      <div id="why-card">
+        <div class="why-header">
+          <span>🛡️ Why is this decision safe? (Staff Invariant)</span>
+          <span style="font-size:11px; font-weight:normal;">Press <b>W</b> to toggle</span>
+        </div>
+        <div class="why-grid">
+          <div class="why-step-box">
+            <b>1. Decision Condition</b>
+            <span id="why-decision"></span>
+          </div>
+          <div class="why-step-box">
+            <b>2. Limiting Bottleneck</b>
+            <span id="why-limiting"></span>
+          </div>
+          <div class="why-step-box" style="grid-column: 1 / -1;">
+            <b>3. Invariant Guarantee</b>
+            <span id="why-invariant"></span>
+          </div>
+          <div class="why-dialogue">
+            <div class="why-q" id="why-q">🤔 Bug: "Couldn't a taller wall change this?"</div>
+            <div class="why-a" id="why-a">🧑 Algo: "No. The right side is already taller..."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code Panel -->
+    <div id="code-panel">
+      <div class="code-panel-header">
+        <span>C# Solution (Two Pointers)</span>
+        <span id="active-line-badge">Line: -</span>
+      </div>
+      <div id="code-lines"></div>
+    </div>
+  </div>
+
+  <!-- Playback Controls -->
+  <div class="panel">
+    <div class="control-bar">
+      <button class="btn" onclick="first()">⏮</button>
+      <button class="btn" onclick="prev()">◀</button>
+      <button class="btn primary" onclick="togglePlay()" id="play-btn">▶ Play</button>
+      <button class="btn" onclick="next()">▶</button>
+      <button class="btn" onclick="last()">⏭</button>
+
+      <input type="range" id="timeline-slider" min="0" max="0" value="0" oninput="goToScene(+this.value)">
+      <span style="font-weight: 800; font-family: monospace; min-width: 55px;" id="step-counter">1/1</span>
+
+      <select class="scene-select" id="scene-select" onchange="goToScene(+this.value)"></select>
+
+      <button class="btn" onclick="toggleWhyMode()">💡 Why Mode</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dev Tunnel Modal -->
+<div class="modal-overlay" id="tunnel-modal">
+  <div class="modal">
+    <div class="modal-title">🔌 Connect to Local Dev Tunnel Backend</div>
+    <p style="font-size: 13.5px; color: var(--ink-muted);">
+      Host your local AlgoAnimator service via Microsoft Dev Tunnels to animate custom code directly from GitHub Pages or GitHub Copilot CLI.
+    </p>
+    <div class="form-group">
+      <label>Dev Tunnel URL</label>
+      <input type="text" class="form-input" id="devtunnel-url-input" placeholder="https://<tunnel-id>.devtunnels.ms (or http://localhost:8000)">
+    </div>
+    <div style="background:#f4f4f5; border: 1.5px solid #d4d4d8; border-radius: 8px; padding: 10px; font-size: 12px; font-family: monospace;">
+      Run locally: <strong>python tunnel.py</strong>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeTunnelModal()">Cancel</button>
+      <button class="btn primary" onclick="saveTunnelUrl()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Input Modal -->
+<div class="modal-overlay" id="custom-modal">
+  <div class="modal">
+    <div class="modal-title">⚡ Animate Custom Elevation Array</div>
+    <div class="form-group">
+      <label>Array Values (comma separated or JSON array)</label>
+      <input type="text" class="form-input" id="custom-array-input" value="[0, 2, 0, 3, 1, 0, 1, 3, 2, 1]">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeCustomModal()">Cancel</button>
+      <button class="btn primary" onclick="runCustomInput()">Simulate & Animate</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSpec = null;
+let currentIndex = 0;
+let playTimer = null;
+let devTunnelUrl = localStorage.getItem("algo_animator_tunnel") || "";
+
+const $ = id => document.getElementById(id);
+
+// Load pre-generated manifest
+async function init() {
+  updateTunnelUI();
+  try {
+    const res = await fetch("cases/manifest.json");
+    const manifest = await res.json();
+    renderCasesRibbon(manifest);
+    // Load first case
+    loadCase(manifest[0].file, 0);
+  } catch (err) {
+    console.warn("Could not load cases/manifest.json, falling back to embedded sample", err);
+    loadFallback();
+  }
+}
+
+function updateTunnelUI() {
+  if (devTunnelUrl) {
+    $("tunnel-dot").classList.add("active");
+    $("tunnel-text").textContent = "Tunnel Connected";
+    $("devtunnel-url-input").value = devTunnelUrl;
+  } else {
+    $("tunnel-dot").classList.remove("active");
+    $("tunnel-text").textContent = "Local Static";
+  }
+}
+
+function renderCasesRibbon(manifest) {
+  const ribbon = $("cases-ribbon");
+  ribbon.innerHTML = "";
+  manifest.forEach((c, idx) => {
+    const pill = document.createElement("button");
+    pill.className = "case-pill" + (idx === 0 ? " active" : "");
+    pill.id = `pill-${idx}`;
+    pill.innerHTML = `<strong>${c.name}</strong> <span style="font-size:11px; opacity:0.8;">(Exp: ${c.expected})</span>`;
+    pill.onclick = () => {
+      document.querySelectorAll(".case-pill").forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      loadCase(c.file, idx);
+    };
+    ribbon.appendChild(pill);
+  });
+}
+
+async function loadCase(filename, idx) {
+  try {
+    const res = await fetch(`cases/${filename}`);
+    const spec = await res.json();
+    setSpec(spec);
+  } catch (e) {
+    console.error("Failed to load case", e);
+  }
+}
+
+function setSpec(spec) {
+  currentSpec = spec;
+  currentIndex = 0;
+  stopPlay();
+
+  $("algo-title").textContent = spec.title;
+  $("algo-sub").textContent = spec.algorithm + " — " + spec.problem;
+  $("badge-time").textContent = "Time: " + spec.time_complexity;
+  $("badge-space").textContent = "Space: " + spec.space_complexity;
+  if (spec.visual_metaphor) {
+    $("badge-metaphor").textContent = "🎨 " + spec.visual_metaphor;
+  }
+  $("intuition-text").innerHTML = "<strong>" + spec.intuition + "</strong> — <em>" + spec.invariant + "</em>";
+
+  // Dropdown
+  const select = $("scene-select");
+  select.innerHTML = "";
+  spec.scenes.forEach((s, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `${i + 1}. [${s.type.toUpperCase()}] ${s.title}`;
+    select.appendChild(opt);
+  });
+  $("timeline-slider").max = Math.max(0, spec.scenes.length - 1);
+
+  // Source code
+  if (spec.source_code) {
+    $("code-panel").style.display = "block";
+    $("stage-grid").classList.add("with-code");
+    const lines = spec.source_code.split("\n");
+    const codeDiv = $("code-lines");
+    codeDiv.innerHTML = "";
+    lines.forEach((l, i) => {
+      const row = document.createElement("div");
+      row.className = "code-line";
+      row.id = `code-line-${i + 1}`;
+      row.innerHTML = `<span class="line-num">${i + 1}</span><span>${escapeHtml(l)}</span>`;
+      codeDiv.appendChild(row);
+    });
+  } else {
+    $("code-panel").style.display = "none";
+    $("stage-grid").classList.remove("with-code");
+  }
+
+  renderScene(0);
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function renderScene(idx) {
+  if (!currentSpec || !currentSpec.scenes[idx]) return;
+  const s = currentSpec.scenes[idx];
+
+  $("timeline-slider").value = idx;
+  $("step-counter").textContent = `${idx + 1}/${currentSpec.scenes.length}`;
+  $("scene-select").value = idx;
+  $("badge-type").textContent = s.type;
+
+  $("narration-title").textContent = s.title;
+  $("narration-text").innerHTML = s.narration;
+
+  // Comic dialogue
+  const comic = $("comic-strip");
+  comic.innerHTML = "";
+  if (s.dialogue && s.dialogue.length) {
+    s.dialogue.forEach(d => {
+      const charId = (typeof d === "string") ? (d.includes("?") ? "bug" : "algo") : (d.character_id || "algo");
+      const text = (typeof d === "string") ? d : d.text;
+      const avatarIcon = charId === "bug" ? "🤔" : (charId === "data" ? "🧱" : "🧑");
+      const row = document.createElement("div");
+      row.className = `dialogue-bubble-row ${charId}`;
+      row.innerHTML = `<div class="avatar ${charId}">${avatarIcon}</div><div class="speech-bubble">${escapeHtml(text)}</div>`;
+      comic.appendChild(row);
+    });
+  }
+
+  // Visual Canvas
+  const canvas = $("data-canvas");
+  canvas.innerHTML = "";
+
+  const arrayItem = s.states.find(x => x.kind === "array");
+  const pointers = s.states.filter(x => x.kind === "pointer");
+  const variables = s.states.filter(x => x.kind === "variable");
+  const waterItems = s.states.filter(x => x.kind === "water");
+
+  if (arrayItem && arrayItem.value) {
+    const rawVals = arrayItem.value.split(",");
+    const numVals = rawVals.map(v => parseInt(v.trim(), 10) || 0);
+    const maxVal = Math.max(...numVals, 1);
+
+    if (numVals.length > 0) {
+      const chart = document.createElement("div");
+      chart.className = "bar-chart-container";
+      numVals.forEach((h, j) => {
+        const col = document.createElement("div");
+        col.className = "bar-col";
+        const wItem = waterItems.find(w => w.index === j);
+        const wVal = wItem ? parseInt(wItem.value, 10) || 0 : 0;
+        const barPx = Math.round((h / maxVal) * 80);
+        const waterPx = Math.round((wVal / maxVal) * 80);
+
+        if (waterPx > 0) {
+          const wb = document.createElement("div");
+          wb.className = "water-block";
+          wb.style.height = `${waterPx}px`;
+          wb.textContent = wVal;
+          col.appendChild(wb);
+        }
+        const hb = document.createElement("div");
+        hb.className = "height-block" + (arrayItem.index === j ? " active" : "");
+        hb.style.height = `${Math.max(4, barPx)}px`;
+        col.appendChild(hb);
+        chart.appendChild(col);
+      });
+      canvas.appendChild(chart);
+    }
+
+    const arrWrap = document.createElement("div");
+    arrWrap.className = "array-wrapper";
+    rawVals.forEach((v, j) => {
+      const cellBox = document.createElement("div");
+      cellBox.className = "array-cell-container";
+      const cell = document.createElement("div");
+      cell.className = "array-cell" + (arrayItem.index === j ? " hot" : "");
+
+      pointers.forEach(p => {
+        const pIdx = p.target_index !== undefined ? p.target_index : parseInt(p.value, 10);
+        if (pIdx === j) {
+          if (p.name.includes("left")) cell.classList.add("active-left");
+          else if (p.name.includes("right")) cell.classList.add("active-right");
+        }
+      });
+
+      cell.textContent = v.trim();
+      cellBox.innerHTML = `<span class="cell-index">${j}</span>`;
+      cellBox.appendChild(cell);
+
+      pointers.forEach(p => {
+        const pIdx = p.target_index !== undefined ? p.target_index : parseInt(p.value, 10);
+        if (pIdx === j) {
+          const ptr = document.createElement("div");
+          const pType = p.name.includes("left") ? "left-pointer" : (p.name.includes("right") ? "right-pointer" : "general-pointer");
+          ptr.className = `pointer-label ${pType}`;
+          ptr.innerHTML = `<span>▲</span><span>${escapeHtml(p.name)}</span>`;
+          cellBox.appendChild(ptr);
+        }
+      });
+
+      arrWrap.appendChild(cellBox);
+    });
+    canvas.appendChild(arrWrap);
+  }
+
+  // Variables
+  if (variables.length) {
+    const vr = document.createElement("div");
+    vr.className = "variables-row";
+    variables.forEach(v => {
+      const pill = document.createElement("div");
+      pill.className = "var-pill" + (v.highlight ? " highlight" : "");
+      pill.innerHTML = `<strong>${escapeHtml(v.name)}</strong>: ${escapeHtml(v.value)}`;
+      vr.appendChild(pill);
+    });
+    canvas.appendChild(vr);
+  }
+
+  // Why is this safe?
+  const whyCard = $("why-card");
+  if (s.why) {
+    whyCard.classList.add("active");
+    $("why-decision").textContent = s.why.decision;
+    $("why-limiting").textContent = s.why.limiting_factor;
+    $("why-invariant").textContent = s.why.invariant_proof;
+    $("why-q").textContent = `🤔 Bug: "${s.why.skeptical_question}"`;
+    $("why-a").textContent = `🧑 Algo: "${s.why.airtight_answer}"`;
+  } else {
+    whyCard.classList.remove("active");
+  }
+
+  // Code line
+  if (currentSpec.source_code) {
+    document.querySelectorAll(".code-line.active").forEach(el => el.classList.remove("active"));
+    if (s.code_line) {
+      const el = document.getElementById(`code-line-${s.code_line}`);
+      if (el) {
+        el.classList.add("active");
+        $("active-line-badge").textContent = `Line: ${s.code_line}`;
+        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }
+}
+
+function goToScene(n) {
+  if (!currentSpec) return;
+  currentIndex = Math.max(0, Math.min(currentSpec.scenes.length - 1, n));
+  renderScene(currentIndex);
+}
+function next() { if (currentIndex < currentSpec.scenes.length - 1) goToScene(currentIndex + 1); else stopPlay(); }
+function prev() { if (currentIndex > 0) goToScene(currentIndex - 1); }
+function first() { goToScene(0); }
+function last() { if (currentSpec) goToScene(currentSpec.scenes.length - 1); }
+
+function togglePlay() { playTimer ? stopPlay() : startPlay(); }
+function startPlay() {
+  $("play-btn").textContent = "⏸ Pause";
+  function tick() {
+    if (currentIndex >= currentSpec.scenes.length - 1) { stopPlay(); return; }
+    next();
+    const dur = (currentSpec.scenes[currentIndex]?.duration_ms || 2000);
+    playTimer = setTimeout(tick, dur);
+  }
+  const dur = (currentSpec.scenes[currentIndex]?.duration_ms || 2000);
+  playTimer = setTimeout(tick, dur);
+}
+function stopPlay() {
+  if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+  $("play-btn").textContent = "▶ Play";
+}
+
+function toggleWhyMode() {
+  const card = $("why-card");
+  card.style.display = card.style.display === "none" ? "block" : "none";
+}
+
+// Modals
+function openTunnelModal() { $("tunnel-modal").classList.add("open"); }
+function closeTunnelModal() { $("tunnel-modal").classList.remove("open"); }
+function saveTunnelUrl() {
+  const url = $("devtunnel-url-input").value.trim();
+  devTunnelUrl = url;
+  localStorage.setItem("algo_animator_tunnel", url);
+  updateTunnelUI();
+  closeTunnelModal();
+}
+
+function openCustomModal() { $("custom-modal").classList.add("open"); }
+function closeCustomModal() { $("custom-modal").classList.remove("open"); }
+
+async function runCustomInput() {
+  const inputVal = $("custom-array-input").value.trim();
+  closeCustomModal();
+
+  if (devTunnelUrl) {
+    // Call live Dev Tunnel backend
+    try {
+      const res = await fetch(`${devTunnelUrl.replace(/\/$/, '')}/api/animate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ algorithm: "Trapping Rain Water", input: inputVal })
+      });
+      const data = await res.json();
+      if (data.spec) setSpec(data.spec);
+      return;
+    } catch (e) {
+      alert("Dev tunnel request failed: " + e.message);
+    }
+  }
+
+  // Fallback to client-side parse if simple
+  try {
+    let clean = inputVal.replace(/[\[\]]/g, "").split(",").map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
+    alert("Simulating " + clean.length + " elements via local state...");
+  } catch (e) {
+    alert("Invalid array format: " + e);
+  }
+}
+
+window.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+  else if (e.code === "ArrowRight") { e.preventDefault(); next(); }
+  else if (e.code === "ArrowLeft") { e.preventDefault(); prev(); }
+  else if (e.code === "KeyW") { e.preventDefault(); toggleWhyMode(); }
+});
+
+init();
+</script>
+</body>
+</html>
