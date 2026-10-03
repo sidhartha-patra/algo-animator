@@ -87,9 +87,11 @@ class AlgoAnimatorHandler(SimpleHTTPRequestHandler):
 
             try:
                 # If Gemini API key is available, run model; otherwise use simulation engine
-                if os.environ.get("GEMINI_API_KEY") and data.get("use_gemini"):
+                if os.environ.get("GEMINI_API_KEY"):
                     prompt = algoanimate.build_prompt(algo_text, input_val, audience, code_text)
                     spec = algoanimate.call_gemini(prompt)
+                    if not spec.source_code:
+                        spec.source_code = code_text
                 else:
                     # Clean input array
                     import ast

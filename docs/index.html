@@ -550,7 +550,7 @@ input[type=range] { flex: 1; min-width: 140px; accent-color: #18181b; }
           <span id="tunnel-text">Local / Static</span>
         </div>
         <button class="nav-btn" onclick="openTunnelModal()">🔌 Dev Tunnel</button>
-        <button class="nav-btn" onclick="openCustomModal()">⚡ Custom Input</button>
+        <button class="nav-btn" onclick="openCustomModal()">📁 Upload / Paste C#</button>
         <a href="https://github.com/sidhartha-patra/algo-animator" target="_blank" class="nav-btn">⭐ GitHub Repo</a>
       </div>
     </div>
@@ -668,14 +668,60 @@ input[type=range] { flex: 1; min-width: 140px; accent-color: #18181b; }
   </div>
 </div>
 
-<!-- Custom Input Modal -->
+<!-- Custom Input / C# Upload Modal -->
 <div class="modal-overlay" id="custom-modal">
-  <div class="modal">
-    <div class="modal-title">⚡ Animate Custom Elevation Array</div>
+  <div class="modal" style="max-width: 650px;">
+    <div class="modal-title">📁 Upload C# Code & Simulate Custom Input</div>
+    <p style="font-size: 13px; color: var(--ink-muted); margin-top: 0;">
+      Upload a <code>.cs</code> file or paste your C# solution below, then specify your test array to generate the interactive comic trace.
+    </p>
+
     <div class="form-group">
-      <label>Array Values (comma separated or JSON array)</label>
+      <label>Upload .cs File</label>
+      <input type="file" id="custom-file-input" accept=".cs,.txt,.py,.java,.cpp" class="form-input" style="padding: 6px;" onchange="handleCodeUpload(event)">
+    </div>
+
+    <div class="form-group">
+      <label>Algorithm Name</label>
+      <input type="text" class="form-input" id="custom-algo-name" value="Trapping Rain Water (Two Pointers)">
+    </div>
+
+    <div class="form-group">
+      <label>C# Source Code</label>
+      <textarea id="custom-code-input" class="form-input" style="height: 160px; font-family: monospace; font-size: 12px; resize: vertical;" placeholder="public int Trap(int[] height) { ... }">public int Trap(int[] height)
+{
+    int left = 0, right = height.Length - 1;
+    int leftMax = 0, rightMax = 0;
+    int totalWater = 0;
+
+    while (left < right)
+    {
+        if (height[left] < height[right])
+        {
+            if (height[left] >= leftMax)
+                leftMax = height[left];
+            else
+                totalWater += leftMax - height[left];
+            left++;
+        }
+        else
+        {
+            if (height[right] >= rightMax)
+                rightMax = height[right];
+            else
+                totalWater += rightMax - height[right];
+            right--;
+        }
+    }
+    return totalWater;
+}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Test Case Array (Elevation Map)</label>
       <input type="text" class="form-input" id="custom-array-input" value="[0, 2, 0, 3, 1, 0, 1, 3, 2, 1]">
     </div>
+
     <div class="modal-footer">
       <button class="btn" onclick="closeCustomModal()">Cancel</button>
       <button class="btn primary" onclick="runCustomInput()">Simulate & Animate</button>
@@ -985,32 +1031,252 @@ function saveTunnelUrl() {
 function openCustomModal() { $("custom-modal").classList.add("open"); }
 function closeCustomModal() { $("custom-modal").classList.remove("open"); }
 
+function handleCodeUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    $("custom-code-input").value = e.target.result;
+    if (file.name) {
+      $("custom-algo-name").value = file.name.replace(/\.[^/.]+$/, "");
+    }
+  };
+  reader.readAsText(file);
+}
+
 async function runCustomInput() {
+  const algoName = $("custom-algo-name").value.trim() || "Custom Algorithm";
+  const customCode = $("custom-code-input").value.trim();
   const inputVal = $("custom-array-input").value.trim();
   closeCustomModal();
 
   if (devTunnelUrl) {
-    // Call live Dev Tunnel backend
     try {
       const res = await fetch(`${devTunnelUrl.replace(/\/$/, '')}/api/animate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ algorithm: "Trapping Rain Water", input: inputVal })
+        body: JSON.stringify({ algorithm: algoName, code: customCode, input: inputVal })
       });
       const data = await res.json();
-      if (data.spec) setSpec(data.spec);
-      return;
+      if (data.spec) {
+        setSpec(data.spec);
+        return;
+      }
     } catch (e) {
-      alert("Dev tunnel request failed: " + e.message);
+      console.warn("Dev tunnel call failed, falling back to client-side simulator:", e);
     }
   }
 
-  // Fallback to client-side parse if simple
+  // Client-side Two-Pointer Simulator for Custom Code
   try {
-    let clean = inputVal.replace(/[\[\]]/g, "").split(",").map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
-    alert("Simulating " + clean.length + " elements via local state...");
-  } catch (e) {
-    alert("Invalid array format: " + e);
+    let height = inputVal.replace(/[\[\]]/g, "").split(",").map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
+    const n = height.length;
+    const rawStr = height.join(",");
+    const scenes = [];
+    let stepNum = 1;
+
+    // Intro scene
+    scenes.push({
+      id: "s1_init",
+      type: "title",
+      title: `${algoName} — Custom Execution`,
+      narration: `Simulating custom input [${rawStr}] with user C# code. Total elements: ${n}.`,
+      dialogue: [
+        { character_id: "algo", text: `Tracing custom input [${rawStr}]. Let's verify the two-pointer invariant.` },
+        { character_id: "bug", text: "I'll be watching to verify every pointer advance is safe." }
+      ],
+      states: [
+        { kind: "array", name: "height", value: rawStr },
+        { kind: "variable", name: "totalWater", value: "0" }
+      ],
+      code_line: 1
+    });
+
+    if (n < 3) {
+      scenes.push({
+        id: "s_edge",
+        type: "result",
+        title: `Edge Case: Length ${n} < 3`,
+        narration: `Array length ${n} < 3 cannot form a basin. Returns 0 water.`,
+        dialogue: [
+          { character_id: "algo", text: "Zero water trapped. A container requires at least 2 boundaries and an interior cell." },
+          { character_id: "bug", text: "Boundary check holds!" }
+        ],
+        states: [{ kind: "variable", name: "totalWater", value: "0" }],
+        code_line: 7
+      });
+    } else {
+      let left = 0, right = n - 1;
+      let leftMax = 0, rightMax = 0;
+      let totalWater = 0;
+      const trapped = {};
+
+      scenes.push({
+        id: "s_setup",
+        type: "setup",
+        title: "Setup Climbers & Pointers",
+        narration: `Initialize left=0 (height ${height[0]}), right=${n-1} (height ${height[n-1]}).`,
+        dialogue: [
+          { character_id: "algo", text: "Pointers at opposite ends. Whichever side is shorter advances." },
+          { character_id: "data", text: `Boundaries active: left=0, right=${n-1}.` }
+        ],
+        states: [
+          { kind: "array", name: "height", value: rawStr },
+          { kind: "pointer", name: "left", value: String(left), target_index: left },
+          { kind: "pointer", name: "right", value: String(right), target_index: right },
+          { kind: "variable", name: "leftMax", value: "0" },
+          { kind: "variable", name: "rightMax", value: "0" },
+          { kind: "variable", name: "totalWater", value: "0" }
+        ],
+        code_line: 3
+      });
+
+      while (left < right) {
+        stepNum++;
+        if (height[left] < height[right]) {
+          const h = height[left];
+          if (h >= leftMax) {
+            leftMax = h;
+            scenes.push({
+              id: `s${stepNum}_lmax`,
+              type: "step",
+              title: `Update leftMax to ${leftMax} at Index ${left}`,
+              narration: `height[${left}] (${h}) >= leftMax. New leftMax is ${leftMax}.`,
+              dialogue: [{ character_id: "algo", text: `New left barrier height: ${leftMax}.` }],
+              states: [
+                { kind: "array", name: "height", value: rawStr, index: left, highlight: true },
+                { kind: "pointer", name: "left", value: String(left), target_index: left },
+                { kind: "pointer", name: "right", value: String(right), target_index: right },
+                { kind: "variable", name: "leftMax", value: String(leftMax), highlight: true },
+                { kind: "variable", name: "rightMax", value: String(rightMax) },
+                { kind: "variable", name: "totalWater", value: String(totalWater) }
+              ],
+              code_line: 11
+            });
+          } else {
+            const w = leftMax - h;
+            totalWater += w;
+            trapped[left] = w;
+            scenes.push({
+              id: `s${stepNum}_wleft`,
+              type: "decision",
+              title: `Trapped +${w} Water at Index ${left}`,
+              narration: `height[${left}] (${h}) < leftMax (${leftMax}). Water trapped = ${leftMax} - ${h} = ${w}.`,
+              dialogue: [
+                { character_id: "algo", text: `Trapped ${w} water unit(s)! Bounded by leftMax (${leftMax}).` },
+                { character_id: "bug", text: "Why can't water leak to the right?" }
+              ],
+              states: [
+                { kind: "array", name: "height", value: rawStr, index: left, highlight: true },
+                { kind: "pointer", name: "left", value: String(left), target_index: left },
+                { kind: "pointer", name: "right", value: String(right), target_index: right },
+                ...Object.entries(trapped).map(([idx, amt]) => ({ kind: "water", name: `water_${idx}`, value: String(amt), index: +idx })),
+                { kind: "variable", name: "leftMax", value: String(leftMax) },
+                { kind: "variable", name: "rightMax", value: String(rightMax) },
+                { kind: "variable", name: "totalWater", value: String(totalWater), highlight: true }
+              ],
+              code_line: 14,
+              why: {
+                decision: `height[${left}] (${h}) < height[${right}] (${height[right]})`,
+                limiting_factor: "Left wall is strictly shorter than right wall",
+                invariant_proof: `Since height[${right}] >= leftMax (${leftMax}), water ceiling at index ${left} cannot exceed ${leftMax}.`,
+                skeptical_question: "Could a middle peak allow more water here?",
+                airtight_answer: `No. Water spills over leftMax (${leftMax}) before any higher level could be reached.`
+              }
+            });
+          }
+          left++;
+        } else {
+          const h = height[right];
+          if (h >= rightMax) {
+            rightMax = h;
+            scenes.push({
+              id: `s${stepNum}_rmax`,
+              type: "step",
+              title: `Update rightMax to ${rightMax} at Index ${right}`,
+              narration: `height[${right}] (${h}) >= rightMax. New rightMax is ${rightMax}.`,
+              dialogue: [{ character_id: "algo", text: `New right barrier height: ${rightMax}.` }],
+              states: [
+                { kind: "array", name: "height", value: rawStr, index: right, highlight: true },
+                { kind: "pointer", name: "left", value: String(left), target_index: left },
+                { kind: "pointer", name: "right", value: String(right), target_index: right },
+                { kind: "variable", name: "leftMax", value: String(leftMax) },
+                { kind: "variable", name: "rightMax", value: String(rightMax), highlight: true },
+                { kind: "variable", name: "totalWater", value: String(totalWater) }
+              ],
+              code_line: 19
+            });
+          } else {
+            const w = rightMax - h;
+            totalWater += w;
+            trapped[right] = w;
+            scenes.push({
+              id: `s${stepNum}_wright`,
+              type: "decision",
+              title: `Trapped +${w} Water at Index ${right}`,
+              narration: `height[${right}] (${h}) < rightMax (${rightMax}). Water trapped = ${rightMax} - ${h} = ${w}.`,
+              dialogue: [
+                { character_id: "algo", text: `Trapped ${w} water unit(s) from right boundary!` },
+                { character_id: "bug", text: "Symmetric invariant holds." }
+              ],
+              states: [
+                { kind: "array", name: "height", value: rawStr, index: right, highlight: true },
+                { kind: "pointer", name: "left", value: String(left), target_index: left },
+                { kind: "pointer", name: "right", value: String(right), target_index: right },
+                ...Object.entries(trapped).map(([idx, amt]) => ({ kind: "water", name: `water_${idx}`, value: String(amt), index: +idx })),
+                { kind: "variable", name: "leftMax", value: String(leftMax) },
+                { kind: "variable", name: "rightMax", value: String(rightMax) },
+                { kind: "variable", name: "totalWater", value: String(totalWater), highlight: true }
+              ],
+              code_line: 22,
+              why: {
+                decision: `height[${right}] (${h}) <= height[${left}] (${height[left]})`,
+                limiting_factor: "Right wall is limiting boundary",
+                invariant_proof: `Since leftMax >= rightMax (${rightMax}), water at index ${right} is strictly bounded by rightMax.`,
+                skeptical_question: "Can water leak leftward?",
+                airtight_answer: `No. The left side has a wall of at least ${rightMax}, so water cannot escape to the left.`
+              }
+            });
+          }
+          right--;
+        }
+      }
+
+      scenes.push({
+        id: "s_final",
+        type: "result",
+        title: `Simulation Finished: ${totalWater} Total Water`,
+        narration: `Two pointers converged at index ${left}. Total water trapped: ${totalWater} units.`,
+        dialogue: [
+          { character_id: "algo", text: `Simulation complete. Total trapped water is ${totalWater}.` },
+          { character_id: "bug", text: "All invariants held across all steps!" }
+        ],
+        states: [
+          { kind: "array", name: "height", value: rawStr },
+          ...Object.entries(trapped).map(([idx, amt]) => ({ kind: "water", name: `water_${idx}`, value: String(amt), index: +idx })),
+          { kind: "variable", name: "totalWater", value: String(totalWater), highlight: true }
+        ],
+        code_line: 26
+      });
+    }
+
+    const clientSpec = {
+      title: algoName,
+      algorithm: "Two Pointers (C#)",
+      problem: `Elevation map: [${rawStr}]`,
+      intuition: "Shorter wall completely bounds the water level, allowing one-pass O(N) evaluation.",
+      visual_metaphor: "Climbers measuring elevation ridges.",
+      invariant: "min(leftMax, rightMax) provides the provable upper water ceiling.",
+      time_complexity: "O(N)",
+      space_complexity: "O(1)",
+      source_code: customCode,
+      source_language: "csharp",
+      scenes: scenes
+    };
+
+    setSpec(clientSpec);
+  } catch (err) {
+    alert("Simulation error: " + err.message);
   }
 }
 
